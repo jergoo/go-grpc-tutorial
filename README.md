@@ -7,5 +7,5 @@
 * [Golang gRPC实践 连载三 Protobuf语法](https://segmentfault.com/a/1190000007917576)
 * [Golang gRPC实践 连载四 gRPC认证](https://segmentfault.com/a/1190000007933303)
 * [Golang gRPC实践 连载五 拦截器 Interceptor](https://segmentfault.com/a/1190000007997759)
-* [Golang gRPC实践 连载六 内置Trace 待更新...]()  
-* [Golang gRPC实践 连载七 http转换 待更新...]()
+* [Golang gRPC实践 连载六 内置Trace](https://segmentfault.com/a/1190000008087436)  
+* [Golang gRPC实践 连载七 http转换](https://segmentfault.com/a/1190000008106582)
