@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "git.vodjk.com/go-grpc/example/proto" // 引入proto包
+	pb "github.com/Jergoo/go-grpc-example/proto" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

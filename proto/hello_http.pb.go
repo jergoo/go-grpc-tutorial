@@ -7,7 +7,7 @@ package proto
 import proto1 "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "git.vodjk.com/go-grpc/example/proto/google/api"
+import _ "github.com/Jergoo/go-grpc-example/proto/google/api"
 
 import (
 	context "golang.org/x/net/context"

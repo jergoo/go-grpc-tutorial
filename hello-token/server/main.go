@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	pb "git.vodjk.com/go-grpc/example/proto"
+	pb "github.com/Jergoo/go-grpc-example/proto"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
