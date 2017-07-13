@@ -1,9 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net"
 
-	pb "github.com/Jergoo/go-grpc-example/proto"
+	pb "github.com/Jergoo/go-grpc-example/proto/hello"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -19,12 +20,13 @@ const (
 // 定义helloService并实现约定的接口
 type helloService struct{}
 
-// HelloService ...
+// HelloService Hello服务
 var HelloService = helloService{}
 
-func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	resp := new(pb.HelloReply)
-	resp.Message = "Hello " + in.Name + "."
+// SayHello 实现Hello服务接口
+func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
+	resp := new(pb.HelloResponse)
+	resp.Message = fmt.Sprintf("Hello %s.", in.Name)
 
 	return resp, nil
 }
@@ -32,7 +34,7 @@ func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.He
 func main() {
 	listen, err := net.Listen("tcp", Address)
 	if err != nil {
-		grpclog.Fatalf("failed to listen: %v", err)
+		grpclog.Fatalf("Failed to listen: %v", err)
 	}
 
 	// TLS认证

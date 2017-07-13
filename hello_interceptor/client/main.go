@@ -63,7 +63,6 @@ func main() {
 	// 调用方法
 	req := &pb.HelloRequest{Name: "gRPC"}
 	res, err := c.SayHello(context.Background(), req)
-
 	if err != nil {
 		grpclog.Fatalln(err)
 	}

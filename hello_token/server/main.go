@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	pb "github.com/Jergoo/go-grpc-example/proto"
+	pb "github.com/Jergoo/go-grpc-example/proto/hello"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -25,7 +25,8 @@ type helloService struct{}
 // HelloService ...
 var HelloService = helloService{}
 
-func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+// SayHello 实现Hello服务接口
+func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
 	// 解析metada中的信息并验证
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
@@ -49,7 +50,7 @@ func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.He
 		return nil, grpc.Errorf(codes.Unauthenticated, "Token认证信息无效: appid=%s, appkey=%s", appid, appkey)
 	}
 
-	resp := new(pb.HelloReply)
+	resp := new(pb.HelloResponse)
 	resp.Message = fmt.Sprintf("Hello %s.\nToken info: appid=%s,appkey=%s", in.Name, appid, appkey)
 
 	return resp, nil
