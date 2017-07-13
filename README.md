@@ -1,5 +1,7 @@
 # Go GRPC Example
 
+> 最近在整理示例，部分代码的引入路径还没来的及修改，可能不能直接使用。
+
 本项目提供segmentfault连载的 **Golang gRPC实践** 系列文章的示例代码。
 
 * [Golang gRPC实践 连载一 gRPC介绍与安装](https://segmentfault.com/a/1190000007880647)

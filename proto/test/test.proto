@@ -1,6 +1,6 @@
 syntax = "proto3";
-
 package test;
+
 option go_package="test";
 
 // TestService 测试服务
@@ -39,5 +39,6 @@ message Test {
         string sex = 1;
     }
     Child child = 9;
+    map<string, string> dict = 10;
 }
 

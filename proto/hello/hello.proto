@@ -1,11 +1,12 @@
 syntax = "proto3"; // 指定proto版本
+package hello;     // 指定包名
 
-package proto;     // 指定包名
+option go_package = "hello";
 
 // 定义Hello服务
 service Hello {
 	// 定义SayHello方法
-	rpc SayHello(HelloRequest) returns (HelloReply) {}
+	rpc SayHello(HelloRequest) returns (HelloResponse) {}
 }
 
 // HelloRequest 请求结构
@@ -13,7 +14,7 @@ message HelloRequest {
 	string name = 1;
 }
 
-// HelloReply 响应结构
-message HelloReply {
+// HelloResponse 响应结构
+message HelloResponse {
     string message = 1;
 }

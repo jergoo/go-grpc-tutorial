@@ -2,18 +2,18 @@
 // source: hello.proto
 
 /*
-Package proto is a generated protocol buffer package.
+Package hello is a generated protocol buffer package.
 
 It is generated from these files:
 	hello.proto
 
 It has these top-level messages:
 	HelloRequest
-	HelloReply
+	HelloResponse
 */
-package proto
+package hello
 
-import proto1 "github.com/golang/protobuf/proto"
+import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 
@@ -23,7 +23,7 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto1.Marshal
+var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
@@ -31,7 +31,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto1.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // HelloRequest 请求结构
 type HelloRequest struct {
@@ -39,7 +39,7 @@ type HelloRequest struct {
 }
 
 func (m *HelloRequest) Reset()                    { *m = HelloRequest{} }
-func (m *HelloRequest) String() string            { return proto1.CompactTextString(m) }
+func (m *HelloRequest) String() string            { return proto.CompactTextString(m) }
 func (*HelloRequest) ProtoMessage()               {}
 func (*HelloRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
@@ -50,17 +50,17 @@ func (m *HelloRequest) GetName() string {
 	return ""
 }
 
-// HelloReply 响应结构
-type HelloReply struct {
+// HelloResponse 响应结构
+type HelloResponse struct {
 	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
 }
 
-func (m *HelloReply) Reset()                    { *m = HelloReply{} }
-func (m *HelloReply) String() string            { return proto1.CompactTextString(m) }
-func (*HelloReply) ProtoMessage()               {}
-func (*HelloReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (m *HelloResponse) Reset()                    { *m = HelloResponse{} }
+func (m *HelloResponse) String() string            { return proto.CompactTextString(m) }
+func (*HelloResponse) ProtoMessage()               {}
+func (*HelloResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
-func (m *HelloReply) GetMessage() string {
+func (m *HelloResponse) GetMessage() string {
 	if m != nil {
 		return m.Message
 	}
@@ -68,8 +68,8 @@ func (m *HelloReply) GetMessage() string {
 }
 
 func init() {
-	proto1.RegisterType((*HelloRequest)(nil), "proto.HelloRequest")
-	proto1.RegisterType((*HelloReply)(nil), "proto.HelloReply")
+	proto.RegisterType((*HelloRequest)(nil), "hello.HelloRequest")
+	proto.RegisterType((*HelloResponse)(nil), "hello.HelloResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -84,7 +84,7 @@ const _ = grpc.SupportPackageIsVersion4
 
 type HelloClient interface {
 	// 定义SayHello方法
-	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 }
 
 type helloClient struct {
@@ -95,9 +95,9 @@ func NewHelloClient(cc *grpc.ClientConn) HelloClient {
 	return &helloClient{cc}
 }
 
-func (c *helloClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
-	out := new(HelloReply)
-	err := grpc.Invoke(ctx, "/proto.Hello/SayHello", in, out, c.cc, opts...)
+func (c *helloClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+	out := new(HelloResponse)
+	err := grpc.Invoke(ctx, "/hello.Hello/SayHello", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (c *helloClient) SayHello(ctx context.Context, in *HelloRequest, opts ...gr
 
 type HelloServer interface {
 	// 定义SayHello方法
-	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	SayHello(context.Context, *HelloRequest) (*HelloResponse, error)
 }
 
 func RegisterHelloServer(s *grpc.Server, srv HelloServer) {
@@ -125,7 +125,7 @@ func _Hello_SayHello_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Hello/SayHello",
+		FullMethod: "/hello.Hello/SayHello",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HelloServer).SayHello(ctx, req.(*HelloRequest))
@@ -134,7 +134,7 @@ func _Hello_SayHello_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 var _Hello_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Hello",
+	ServiceName: "hello.Hello",
 	HandlerType: (*HelloServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -146,17 +146,17 @@ var _Hello_serviceDesc = grpc.ServiceDesc{
 	Metadata: "hello.proto",
 }
 
-func init() { proto1.RegisterFile("hello.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("hello.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 129 bytes of a gzipped FileDescriptorProto
+	// 137 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xce, 0x48, 0xcd, 0xc9,
-	0xc9, 0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x53, 0x4a, 0x4a, 0x5c, 0x3c, 0x1e,
-	0x20, 0xd1, 0xa0, 0xd4, 0xc2, 0xd2, 0xd4, 0xe2, 0x12, 0x21, 0x21, 0x2e, 0x96, 0xbc, 0xc4, 0xdc,
-	0x54, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x30, 0x5b, 0x49, 0x8d, 0x8b, 0x0b, 0xaa, 0xa6,
-	0x20, 0xa7, 0x52, 0x48, 0x82, 0x8b, 0x3d, 0x37, 0xb5, 0xb8, 0x38, 0x31, 0x1d, 0xa6, 0x08, 0xc6,
-	0x35, 0xb2, 0xe5, 0x62, 0x05, 0xab, 0x13, 0x32, 0xe1, 0xe2, 0x08, 0x4e, 0xac, 0x84, 0xb0, 0x85,
-	0x21, 0xf6, 0xe9, 0x21, 0xdb, 0x22, 0x25, 0x88, 0x2a, 0x58, 0x90, 0x53, 0xa9, 0xc4, 0x90, 0xc4,
-	0x06, 0x16, 0x33, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x4c, 0x9d, 0x53, 0x77, 0xa7, 0x00, 0x00,
-	0x00,
+	0xc9, 0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x73, 0x94, 0x94, 0xb8, 0x78, 0x3c,
+	0x40, 0x8c, 0xa0, 0xd4, 0xc2, 0xd2, 0xd4, 0xe2, 0x12, 0x21, 0x21, 0x2e, 0x96, 0xbc, 0xc4, 0xdc,
+	0x54, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x30, 0x5b, 0x49, 0x93, 0x8b, 0x17, 0xaa, 0xa6,
+	0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0x48, 0x82, 0x8b, 0x3d, 0x37, 0xb5, 0xb8, 0x38, 0x31, 0x1d,
+	0xa6, 0x0e, 0xc6, 0x35, 0x72, 0xe0, 0x62, 0x05, 0x2b, 0x15, 0x32, 0xe7, 0xe2, 0x08, 0x4e, 0xac,
+	0x84, 0xb0, 0x85, 0xf5, 0x20, 0x16, 0x23, 0x5b, 0x24, 0x25, 0x82, 0x2a, 0x08, 0x31, 0x59, 0x89,
+	0xc1, 0x89, 0x3d, 0x0a, 0xe2, 0xb2, 0x24, 0x36, 0xb0, 0x3b, 0x8d, 0x01, 0x01, 0x00, 0x00, 0xff,
+	0xff, 0x0a, 0x1f, 0x9a, 0x04, 0xb6, 0x00, 0x00, 0x00,
 }

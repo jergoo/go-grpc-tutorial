@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "github.com/Jergoo/go-grpc-example/proto" // 引入proto包
+	pb "github.com/Jergoo/go-grpc-example/proto/hello" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -16,24 +16,21 @@ const (
 func main() {
 	// 连接
 	conn, err := grpc.Dial(Address, grpc.WithInsecure())
-
 	if err != nil {
 		grpclog.Fatalln(err)
 	}
-
 	defer conn.Close()
 
 	// 初始化客户端
 	c := pb.NewHelloClient(conn)
 
 	// 调用方法
-	reqBody := new(pb.HelloRequest)
-	reqBody.Name = "gRPC"
-	r, err := c.SayHello(context.Background(), reqBody)
+	req := &pb.HelloRequest{Name: "gRPC"}
+	res, err := c.SayHello(context.Background(), req)
 
 	if err != nil {
 		grpclog.Fatalln(err)
 	}
 
-	grpclog.Println(r.Message)
+	grpclog.Println(res.Message)
 }
