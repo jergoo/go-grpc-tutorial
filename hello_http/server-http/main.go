@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	gw "github.com/Jergoo/go-grpc-example/proto"
+	gw "github.com/jergoo/go-grpc-example/proto"
 )
 
 func run() error {

@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	pb "github.com/Jergoo/go-grpc-example/proto"
+	pb "github.com/jergoo/go-grpc-example/proto"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 )
