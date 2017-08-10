@@ -100,8 +100,9 @@ func main() {
 
 	fmt.Printf("grpc and https on port: %d\n", 50052)
 
-	err = srv.Serve(tls.NewListener(conn, srv.TLSConfig))
+	err = srv.ListenAndServeTLS("../../keys/server.pem", "../../keys/server.key")
 
+   
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
