@@ -33,6 +33,36 @@ func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.He
 	return resp, nil
 }
 
+func main() {
+	listen, err := net.Listen("tcp", Address)
+	if err != nil {
+		grpclog.Fatalf("Failed to listen: %v", err)
+	}
+
+	var opts []grpc.ServerOption
+
+	// TLS认证
+	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
+	if err != nil {
+		grpclog.Fatalf("Failed to generate credentials %v", err)
+	}
+
+	opts = append(opts, grpc.Creds(creds))
+
+	// 注册interceptor
+	opts = append(opts, grpc.UnaryInterceptor(interceptor))
+
+	// 实例化grpc Server
+	s := grpc.NewServer(opts...)
+
+	// 注册HelloService
+	pb.RegisterHelloServer(s, HelloService)
+
+	grpclog.Println("Listen on " + Address + " with TLS + Token + Interceptor")
+
+	s.Serve(listen)
+}
+
 // auth 验证Token
 func auth(ctx context.Context) error {
 	md, ok := metadata.FromContext(ctx)
@@ -60,41 +90,12 @@ func auth(ctx context.Context) error {
 	return nil
 }
 
-func main() {
-	listen, err := net.Listen("tcp", Address)
+// interceptor 拦截器
+func interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	err := auth(ctx)
 	if err != nil {
-		grpclog.Fatalf("Failed to listen: %v", err)
+		return nil, err
 	}
-
-	var opts []grpc.ServerOption
-
-	// TLS认证
-	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
-	if err != nil {
-		grpclog.Fatalf("Failed to generate credentials %v", err)
-	}
-
-	opts = append(opts, grpc.Creds(creds))
-
-	// 注册interceptor
-	var interceptor grpc.UnaryServerInterceptor
-	interceptor = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		err = auth(ctx)
-		if err != nil {
-			return
-		}
-		// 继续处理请求
-		return handler(ctx, req)
-	}
-	opts = append(opts, grpc.UnaryInterceptor(interceptor))
-
-	// 实例化grpc Server
-	s := grpc.NewServer(opts...)
-
-	// 注册HelloService
-	pb.RegisterHelloServer(s, HelloService)
-
-	grpclog.Println("Listen on " + Address + " with TLS + Token + Interceptor")
-
-	s.Serve(listen)
+	// 继续处理请求
+	return handler(ctx, req)
 }

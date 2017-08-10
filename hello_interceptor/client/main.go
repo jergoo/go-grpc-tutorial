@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	pb "github.com/jergoo/go-grpc-example/proto/hello" // 引入proto包
 
 	"golang.org/x/net/context"
@@ -50,6 +52,8 @@ func main() {
 
 	// 指定自定义认证
 	opts = append(opts, grpc.WithPerRPCCredentials(new(customCredential)))
+	// 指定客户端interceptor
+	opts = append(opts, grpc.WithUnaryInterceptor(interceptor))
 
 	conn, err := grpc.Dial(Address, opts...)
 	if err != nil {
@@ -68,4 +72,12 @@ func main() {
 	}
 
 	grpclog.Println(res.Message)
+}
+
+// interceptor 客户端拦截器
+func interceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	start := time.Now()
+	err := invoker(ctx, method, req, reply, cc, opts...)
+	grpclog.Printf("method=%s req=%v rep=%v duration=%s error=%v\n", method, req, reply, time.Since(start), err)
+	return err
 }
