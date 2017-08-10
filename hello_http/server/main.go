@@ -3,8 +3,7 @@ package main
 import (
 	"net"
 
-	pb "github.com/jergoo/go-grpc-example/proto" // 引入编译生成的包
-
+	pb "github.com/jergoo/go-grpc-example/proto/hello_http"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
@@ -15,14 +14,15 @@ const (
 	Address = "127.0.0.1:50052"
 )
 
-// 定义helloHttpService并实现约定的接口
-type helloHttpService struct{}
+// 定义helloHTTPService并实现约定的接口
+type helloHTTPService struct{}
 
-// HelloHttpService ...
-var HelloHttpService = helloHttpService{}
+// HelloHTTPService 实现服务端接口
+var HelloHTTPService = helloHTTPService{}
 
-func (h helloHttpService) SayHello(ctx context.Context, in *pb.HelloHttpRequest) (*pb.HelloHttpReply, error) {
-	resp := new(pb.HelloHttpReply)
+// SayHello ...
+func (h helloHTTPService) SayHello(ctx context.Context, in *pb.HelloHTTPRequest) (*pb.HelloHTTPResponse, error) {
+	resp := new(pb.HelloHTTPResponse)
 	resp.Message = "Hello " + in.Name + "."
 
 	return resp, nil
@@ -37,8 +37,8 @@ func main() {
 	// 实例化grpc Server
 	s := grpc.NewServer()
 
-	// 注册HelloService
-	pb.RegisterHelloHttpServer(s, HelloHttpService)
+	// 注册HelloHTTPService
+	pb.RegisterHelloHTTPServer(s, HelloHTTPService)
 
 	grpclog.Println("Listen on " + Address)
 

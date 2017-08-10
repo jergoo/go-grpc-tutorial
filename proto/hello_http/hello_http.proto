@@ -1,13 +1,14 @@
-syntax = "proto3";  // 指定proto版本
+syntax = "proto3";
 
-package proto;     // 指定包名
+package htllo_http;
+option go_package = "hello_http";
 
 import "google/api/annotations.proto";
 
 // 定义Hello服务
-service HelloHttp {
+service HelloHTTP {
     // 定义SayHello方法
-    rpc SayHello(HelloHttpRequest) returns (HelloHttpReply) {
+    rpc SayHello(HelloHTTPRequest) returns (HelloHTTPResponse) {
         // http option
         option (google.api.http) = {
             post: "/example/echo"
@@ -17,11 +18,11 @@ service HelloHttp {
 }
 
 // HelloRequest 请求结构
-message HelloHttpRequest {
+message HelloHTTPRequest {
     string name = 1;
 }
 
-// HelloReply 响应结构
-message HelloHttpReply {
+// HelloResponse 响应结构
+message HelloHTTPResponse {
     string message = 1;
 }
