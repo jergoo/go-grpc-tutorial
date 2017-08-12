@@ -32,6 +32,10 @@ func (h helloHTTPService) SayHello(ctx context.Context, in *pb.HelloHTTPRequest)
 
 func main() {
 	endpoint := "127.0.0.1:50052"
+	conn, err := net.Listen("tcp", endpoint)
+	if err != nil {
+		grpclog.Fatalf("TCP Listent err:%v\n", err)
+	}
 
 	// grpc server
 	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
@@ -57,10 +61,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", gwmux)
 
-	conn, err := net.Listen("tcp", endpoint)
-	if err != nil {
-		grpclog.Fatalf("TCP Listent err:%v\n", err)
-	}
 	srv := &http.Server{
 		Addr:      endpoint,
 		Handler:   grpcHandlerFunc(grpcServer, mux),
