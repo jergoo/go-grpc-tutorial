@@ -34,13 +34,13 @@ func main() {
 	endpoint := "127.0.0.1:50052"
 	conn, err := net.Listen("tcp", endpoint)
 	if err != nil {
-		grpclog.Fatalf("TCP Listent err:%v\n", err)
+		grpclog.Fatalf("TCP Listen err:%v\n", err)
 	}
 
 	// grpc server
 	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
 	if err != nil {
-		grpclog.Fatalf("Failed to generate credentials %v", err)
+		grpclog.Fatalf("Failed to create server TLS credentials %v", err)
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterHelloHTTPServer(grpcServer, HelloHTTPService)
@@ -49,7 +49,7 @@ func main() {
 	ctx := context.Background()
 	dcreds, err := credentials.NewClientTLSFromFile("../../keys/server.pem", "server name")
 	if err != nil {
-		grpclog.Fatalf("Failed to create TLS credentials %v", err)
+		grpclog.Fatalf("Failed to create client TLS credentials %v", err)
 	}
 	dopts := []grpc.DialOption{grpc.WithTransportCredentials(dcreds)}
 	gwmux := runtime.NewServeMux()
@@ -82,7 +82,7 @@ func getTLSConfig() *tls.Config {
 	var demoKeyPair *tls.Certificate
 	pair, err := tls.X509KeyPair(cert, key)
 	if err != nil {
-		panic(err)
+		grpclog.Fatalf("TLS KeyPair err: %v\n", err)
 	}
 	demoKeyPair = &pair
 	return &tls.Config{
