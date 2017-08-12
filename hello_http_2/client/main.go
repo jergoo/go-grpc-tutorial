@@ -43,4 +43,4 @@ func main() {
 	grpclog.Println(r.Message)
 }
 
-// OR: curl -X POST -k http://localhost:50052/example/echo -d '{"name": "gRPC-HTTP is working!"}'
+// OR: curl -X POST -k https://localhost:50052/example/echo -d '{"name": "gRPC-HTTP is working!"}'
