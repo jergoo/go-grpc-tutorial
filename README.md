@@ -2,7 +2,7 @@
 
 本项目提供[Go-gRPC 实践指南](https://github.com/jergoo/go-grpc-practice-guide)项目中的示例代码。
 
-segmentfault连载的 **Golang gRPC实践** 系列文章中的示例也包含在本项目中，文章暂时没有同步更新，代码以本项目为准。
+segmentfault连载的 **Golang gRPC实践** 系列文章中的示例也包含在本项目中，文章暂时没有同步更新，代码以本项目为准。
 
 * [Golang gRPC实践 连载一 gRPC介绍与安装](https://segmentfault.com/a/1190000007880647)
 * [Golang gRPC实践 连载二 Hello gRPC](https://segmentfault.com/a/1190000007909829)
