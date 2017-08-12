@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "github.com/jergoo/go-grpc-example/proto" // 引入proto包
+	pb "github.com/jergoo/go-grpc-example/proto/hello_http" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -29,10 +29,10 @@ func main() {
 	defer conn.Close()
 
 	// 初始化客户端
-	c := pb.NewHelloHttpClient(conn)
+	c := pb.NewHelloHTTPClient(conn)
 
 	// 调用方法
-	reqBody := new(pb.HelloHttpRequest)
+	reqBody := new(pb.HelloHTTPRequest)
 	reqBody.Name = "gRPC"
 	r, err := c.SayHello(context.Background(), reqBody)
 
@@ -42,3 +42,5 @@ func main() {
 
 	grpclog.Println(r.Message)
 }
+
+// OR: curl -X POST -k http://localhost:50052/example/echo -d '{"name": "gRPC-HTTP is working!"}'

@@ -2,47 +2,32 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	pb "github.com/jergoo/go-grpc-example/proto/hello_http"
 	"golang.org/x/net/context"
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
-
-	pb "github.com/jergoo/go-grpc-example/proto"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 )
 
-// 定义helloHttpService并实现约定的接口
-type helloHttpService struct{}
+// 定义helloHTTPService并实现约定的接口
+type helloHTTPService struct{}
 
-// HelloHttpService ...
-var HelloHttpService = helloHttpService{}
+// HelloHTTPService Hello HTTP服务
+var HelloHTTPService = helloHTTPService{}
 
-func (h helloHttpService) SayHello(ctx context.Context, in *pb.HelloHttpRequest) (*pb.HelloHttpReply, error) {
-	resp := new(pb.HelloHttpReply)
+// SayHello 实现Hello服务接口
+func (h helloHTTPService) SayHello(ctx context.Context, in *pb.HelloHTTPRequest) (*pb.HelloHTTPResponse, error) {
+	resp := new(pb.HelloHTTPResponse)
 	resp.Message = "Hello " + in.Name + "."
 
 	return resp, nil
-}
-
-// grpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
-// connections or otherHandler otherwise. Copied from cockroachdb.
-func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO(tamird): point to merged gRPC code rather than a PR.
-		// This is a partial recreation of gRPC's internal checks https://github.com/grpc/grpc-go/pull/514/files#diff-95e9a25b738459a2d3030e1e6fa2a718R61
-		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-			grpcServer.ServeHTTP(w, r)
-		} else {
-			otherHandler.ServeHTTP(w, r)
-		}
-	})
 }
 
 func main() {
@@ -53,34 +38,45 @@ func main() {
 	if err != nil {
 		grpclog.Fatalf("Failed to generate credentials %v", err)
 	}
-	conn, _ := net.Listen("tcp", endpoint)
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterHelloHttpServer(grpcServer, HelloHttpService)
+	pb.RegisterHelloHTTPServer(grpcServer, HelloHTTPService)
 
-	// http-grpc
+	// gw server
 	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
 	dcreds, err := credentials.NewClientTLSFromFile("../../keys/server.pem", "server name")
 	if err != nil {
 		grpclog.Fatalf("Failed to create TLS credentials %v", err)
 	}
 	dopts := []grpc.DialOption{grpc.WithTransportCredentials(dcreds)}
 	gwmux := runtime.NewServeMux()
-	err = pb.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts)
-	if err != nil {
-		fmt.Printf("serve: %v\n", err)
-		return
+	if err = pb.RegisterHelloHTTPHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
+		grpclog.Fatalf("Failed to register gw server: %v\n", err)
 	}
 
+	// http服务
 	mux := http.NewServeMux()
 	mux.Handle("/", gwmux)
 
+	conn, err := net.Listen("tcp", endpoint)
 	if err != nil {
-		panic(err)
+		grpclog.Fatalf("TCP Listent err:%v\n", err)
+	}
+	srv := &http.Server{
+		Addr:      endpoint,
+		Handler:   grpcHandlerFunc(grpcServer, mux),
+		TLSConfig: getTLSConfig(),
 	}
 
+	grpclog.Infof("gRPC and https listen on: %s\n", endpoint)
+
+	if err = srv.Serve(tls.NewListener(conn, srv.TLSConfig)); err != nil {
+		grpclog.Fatal("ListenAndServe: ", err)
+	}
+
+	return
+}
+
+func getTLSConfig() *tls.Config {
 	cert, _ := ioutil.ReadFile("../../keys/server.pem")
 	key, _ := ioutil.ReadFile("../../keys/server.key")
 	var demoKeyPair *tls.Certificate
@@ -89,22 +85,25 @@ func main() {
 		panic(err)
 	}
 	demoKeyPair = &pair
-
-	srv := &http.Server{
-		Addr:    endpoint,
-		Handler: grpcHandlerFunc(grpcServer, mux),
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{*demoKeyPair},
-		},
+	return &tls.Config{
+		Certificates: []tls.Certificate{*demoKeyPair},
+		NextProtos:   []string{http2.NextProtoTLS}, // HTTP2 TLS支持
 	}
+}
 
-	fmt.Printf("grpc and https on port: %d\n", 50052)
-
-	err = srv.Serve(tls.NewListener(conn, srv.TLSConfig))
-
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+// grpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
+// connections or otherHandler otherwise. Copied from cockroachdb.
+func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
+	if otherHandler == nil {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			grpcServer.ServeHTTP(w, r)
+		})
 	}
-
-	return
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			otherHandler.ServeHTTP(w, r)
+		}
+	})
 }
