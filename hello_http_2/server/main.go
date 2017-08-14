@@ -67,7 +67,7 @@ func main() {
 		TLSConfig: getTLSConfig(),
 	}
 
-	grpclog.Infof("gRPC and https listen on: %s\n", endpoint)
+	grpclog.Println("gRPC and https listen on: %s\n", endpoint)
 
 	if err = srv.Serve(tls.NewListener(conn, srv.TLSConfig)); err != nil {
 		grpclog.Fatal("ListenAndServe: ", err)
