@@ -65,7 +65,7 @@ func main() {
 
 // auth 验证Token
 func auth(ctx context.Context) error {
-	md, ok := metadata.FromContext(ctx)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return grpc.Errorf(codes.Unauthenticated, "无Token认证信息")
 	}
