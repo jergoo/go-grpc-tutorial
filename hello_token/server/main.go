@@ -28,7 +28,7 @@ var HelloService = helloService{}
 // SayHello 实现Hello服务接口
 func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
 	// 解析metada中的信息并验证
-	md, ok := metadata.FromContext(ctx)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, grpc.Errorf(codes.Unauthenticated, "无Token认证信息")
 	}
