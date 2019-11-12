@@ -1,3 +1,5 @@
+[![GolangCI](https://golangci.com/badges/github.com/jegoo/go-grpc-practice-guide.svg)](https://golangci.com)
+
 # Go GRPC Example
 
 本项目提供[Go-gRPC 实践指南](https://github.com/jergoo/go-grpc-practice-guide)项目中的示例代码。
