@@ -1,10 +1,10 @@
-[![GolangCI](https://golangci.com/badges/github.com/jegoo/go-grpc-practice-guide.svg)](https://golangci.com)
+# Go GRPC Tutorial
 
-# Go GRPC Example
+重新整理中...
 
-本项目提供[Go-gRPC 实践指南](https://github.com/jergoo/go-grpc-practice-guide)项目中的示例代码。
+segmentfault连载的 **Golang gRPC实践** 系列文章和 [Go-gRPC 实践指南](https://github.com/jergoo/go-grpc-practice-guide)中的示例代码请下载 [release v1.0](https://github.com/jergoo/go-grpc-example/releases/tag/v1.0)
 
-segmentfault连载的 **Golang gRPC实践** 系列文章中的示例也包含在本项目中，文章暂时没有同步更新，代码以本项目为准。
+segmentfault **Golang gRPC实践** 系列文章(不再更新):
 
 * [Golang gRPC实践 连载一 gRPC介绍与安装](https://segmentfault.com/a/1190000007880647)
 * [Golang gRPC实践 连载二 Hello gRPC](https://segmentfault.com/a/1190000007909829)
