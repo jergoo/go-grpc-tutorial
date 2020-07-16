@@ -1,4 +1,4 @@
-# Go GRPC Tutorial
+# Go gRPC Tutorial
 
 重新整理中...
 
