@@ -2,6 +2,10 @@
 
 重新整理中...
 
+新文档访问地址：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
+
+## 历史版本
+
 segmentfault连载的 **Golang gRPC实践** 系列文章和 [Go-gRPC 实践指南](https://github.com/jergoo/go-grpc-practice-guide)中的示例代码请下载 [release v1.0](https://github.com/jergoo/go-grpc-example/releases/tag/v1.0)
 
 segmentfault **Golang gRPC实践** 系列文章(不再更新):

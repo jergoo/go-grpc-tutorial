@@ -2,10 +2,8 @@
 
 ## Resources
 
-* [grpc官网](https://grpc.io/)
-* [grpc中文文档](http://doc.oschina.net/grpc)
-* [protobuf官方文档](https://developers.google.com/protocol-buffers/)
-
+* [gRPC official website](https://grpc.io/)
+* [Protocol Buffers Document](https://developers.google.com/protocol-buffers/)
 
 ## Projects
 

@@ -1,6 +1,6 @@
 # Go gRPC Tutorial
 
-> Golang gRPC tutorial for beginners.
+> Golang gRPC 初学者教程
 
 [GitHub](https://github.com/jergoo/go-grpc-tutorial)
-[Get Started](#Intro)
+[开始学习](#gRPC)
