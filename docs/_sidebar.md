@@ -1,22 +1,19 @@
-# Summary
-
-* [介绍](README.md)
-    * [gRPC简介](chapter1/intro.md)
+* **入门**
     * [安装](chapter1/install.md)
     * [Protobuf语法](chapter1/protobuf.md)
     * [Protobuf⇢Go转换](chapter1/protobuf-go.md)
-* [实践](chapter2/README.md)
+* **实践**
     * [Hello gRPC](chapter2/hello-grpc.md)
     * [认证](chapter2/auth.md)
     * [拦截器](chapter2/interceptor.md)
     * [流式传输](chapter2/stream.md)
     * [内置Trace](chapter2/trace.md)
     * [负载均衡](chapter2/load-balancer.md)
-* [gRPC生态](chapter3/README.md)
+* **进阶**
     * [Http网关](chapter3/gateway.md)
-* [多语言支持](chapter4/README.md)
+* **多语言**
     * [Java](chapter4/java.md)
     * [PHP](chapter4/php.md)
     * [Python](chapter4/python.md)
     * [Node.js](chapter4/nodejs.md)
-* [参考资源](reference.md)
+* [**参考**](reference.md)
