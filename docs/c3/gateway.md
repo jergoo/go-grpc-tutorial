@@ -6,7 +6,7 @@ etcd3 API全面升级为gRPC后，同时要提供REST API服务，维护两个�
 
 结构如图：
 
-![](/assets/grpc_rest_gateway.png)
+![](../_media/grpc_rest_gateway.png)
 
 
 ## 安装grpc-gateway

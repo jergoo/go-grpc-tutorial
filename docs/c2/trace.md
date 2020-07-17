@@ -98,7 +98,7 @@ Trace listen on 50051
 
 访问：localhost:50051/debug/events，结果如图：
 
-![](/assets/grpc_trace_events.jpg)
+![](../_media/grpc_trace_events.jpg)
 
 可以看到服务端注册的服务和服务正常启动的事件信息。
 
@@ -107,6 +107,6 @@ Trace listen on 50051
 
 访问：localhost:50051/debug/requests，结果如图：
 
-![](/assets/grpc_trace_requests.jpg)
+![](../_media/grpc_trace_requests.jpg)
 
 这里可以显示最近的请求状态，包括请求的服务、参数、耗时、响应，对于简单的状态查看还是很方便的，默认值显示最近10条记录。
