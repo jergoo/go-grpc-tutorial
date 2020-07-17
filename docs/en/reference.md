@@ -1,13 +1,13 @@
-# 参考
+# Reference
 
-## 相关资料：
+## Resources
 
 * [grpc官网](https://grpc.io/)
 * [grpc中文文档](http://doc.oschina.net/grpc)
 * [protobuf官方文档](https://developers.google.com/protocol-buffers/)
 
 
-## 相关项目
+## Projects
 
 * [grpc/grpc](https://github.com/grpc/grpc)
 * [grpc-go](https://github.com/grpc/grpc-go/)

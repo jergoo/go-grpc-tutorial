@@ -18,9 +18,18 @@
       coverpage: ['/', '/zh-cn/'],      // enable cover page
       loadSidebar: true,                // enable sidebar
       loadNavbar: true,                 // enable navbar
-      relativePath: true,               // enable relative path
-      search: 'auto',                   // enable search plugin
-      auto2top: true
+      auto2top: true,
+      search: {
+        noData: {
+          '/en/': 'No results!',
+          '/': '没有结果!'
+        },
+        paths: 'auto',
+        placeholder: {
+          '/en/': 'Search',
+          '/': '搜索'
+        }
+      },
     }
   </script>
   <!-- docsify -->

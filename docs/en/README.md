@@ -7,7 +7,7 @@
 ![](/assets/grpc_concept_diagram_00.png)
 
 
-## 主要特性
+## Features
 
 * 强大的IDL
 
