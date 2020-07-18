@@ -1,5 +1,5 @@
 * **入门**
-    * [安装](c1/install.md)
+    * [安装](c1/install.md "grpc install")
     * [Protobuf语法](c1/protobuf.md)
     * [Protobuf⇢Go转换](c1/protobuf-go.md)
 * **实践**

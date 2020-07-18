@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <title>Go gRPC Tutorial -- Jergoo</title>
@@ -11,27 +11,22 @@
   <style>
     section.cover .cover-main>p:last-child a{border: 1px solid var(--theme-color,#14b1ab);color: #FFFFFF;}
     section.cover .cover-main>p:last-child a:last-child{background-color: var(--theme-color,#14b1ab);}
+    section.cover .cover-main #logo-go{height: 200px;}
+    section.cover .cover-main #logo-grpc{height: 150px;}
   </style>
 </head>
 <body>
   <div id="app">Please wait...</div>
   <script>
     window.$docsify = {
-      name: 'Go gRPC Tutorial',         // sidebar title
-      repo: 'jergoo/go-grpc-tutorial',  // github corner
-      coverpage: ['/', '/en/'],      // enable cover page
-      loadSidebar: true,                // enable sidebar
+      name: 'Go gRPC Tutorial',
+      repo: 'jergoo/go-grpc-tutorial',
+      coverpage: true,
+      loadSidebar: true,
+      subMaxLevel: 2,
       auto2top: true,
       themeColor: '#14b1ab',
-      search: {
-        noData: {
-          '/': '没有结果!'
-        },
-        paths: 'auto',
-        placeholder: {
-          '/': '搜索'
-        }
-      },
+      search: 'auto',
       count:{
         countable:true,
         fontsize:'0.9em',
@@ -50,9 +45,11 @@
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
   <!-- copy code plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  <!-- word count plugin-->
+  <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
   <!-- code highlight -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.20.0/components/prism-go.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.20.0/components/prism-bash.min.js"></script>
-  <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1.20.0/components/prism-protobuf.min.js"></script>
 </body>
 </html>
