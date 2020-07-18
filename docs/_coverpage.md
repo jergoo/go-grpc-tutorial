@@ -5,7 +5,7 @@
 
 # **Go gRPC Tutorial**
 
-> 一份关于 Golang gRPC 的小旅程 <sup>🏷</sup>
+> 一段关于 Golang gRPC 的小旅程 <sup>🏷</sup>
 
 - 🚚码着码着就乐了🚌🚌🚌🚌🚌🚌
 
