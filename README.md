@@ -1,7 +1,5 @@
 # Go gRPC Tutorial
 
-整理中...
-
 新文档地址：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
 
 ## 历史版本
