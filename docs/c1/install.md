@@ -1,38 +1,34 @@
 # 安装
 
-环境：
--------
-
-* 操作系统：macOS 10.12.5 / Ubuntu 16.04
-* golang 版本：1.8.3
-* protobuf 版本：3.3.2
-* grpc-go 版本：1.4.2
-
-
-准备工作
--------
-
-* Linux 安装 [linuxbrew](https://github.com/Homebrew/linuxbrew)
-* macOS 安装 [homebrew](http://brew.sh/)
-
-
-protobuf
---------
+## protobuf 编译器
 
 项目地址：[google/protobuf](https://github.com/google/protobuf)
 
-这里直接使用`brew`工具安装
+这里使用`brew`工具安装
 
 ```sh
 $ brew install protobuf
 ```
-`brew`默认会安装最新版本，执行`protoc`命令查看当前版本：
+
+执行`protoc`命令查看当前版本：
 
 ```sh
 $ protoc --version
-libprotoc 3.3.2
+libprotoc 3.21.6
 ```
+## Go 编译插件
 
+项目地址：
+* [protobuf-go](https://github.com/protocolbuffers/protobuf-go)
+* [grpc-go](https://github.com/grpc/grpc-go)
+
+安装：
+```sh
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+$ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+
+$ export PATH="$PATH:$(go env GOPATH)/bin"
+```
 
 grpc-go
 -------

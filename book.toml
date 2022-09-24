@@ -1,0 +1,7 @@
+[book]
+title = "Go gRPC 指南"
+authors = ["jergoo"]
+description = "Go gRPC Tutorial"
+language = "zh"
+multilingual = false
+src = "docs"

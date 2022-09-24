@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	pb "github.com/jergoo/go-grpc-example/proto/hello" // 引入编译生成的包
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入编译生成的包
 
 	"golang.org/x/net/context"
 	"golang.org/x/net/trace"

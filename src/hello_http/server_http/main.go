@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
-	gw "github.com/jergoo/go-grpc-example/proto/hello_http"
+	gw "github.com/jergoo/go-grpc-tutorial/proto/hello_http"
 )
 
 func main() {

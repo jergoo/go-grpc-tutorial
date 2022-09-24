@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	pb "github.com/jergoo/go-grpc-example/proto/hello" // 引入proto包
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

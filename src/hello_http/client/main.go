@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "github.com/jergoo/go-grpc-example/proto/hello_http"
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello_http"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"

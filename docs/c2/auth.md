@@ -82,7 +82,7 @@ import (
 	"fmt"
 	"net"
 
-	pb "github.com/jergoo/go-grpc-example/proto/hello"
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -148,7 +148,7 @@ Listen on 127.0.0.1:50052 with TLS
 package main
 
 import (
-	pb "github.com/jergoo/go-grpc-example/proto/hello" // 引入proto包
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -229,7 +229,7 @@ Hello gRPC
 package main
 
 import (
-	pb "github.com/jergoo/go-grpc-example/proto/hello" // 引入proto包
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -312,7 +312,7 @@ import (
 	"fmt"
 	"net"
 
-	pb "github.com/jergoo/go-grpc-example/proto/hello"
+	pb "github.com/jergoo/go-grpc-tutorial/proto/hello"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
