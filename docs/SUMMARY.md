@@ -6,9 +6,8 @@
 
 # 入门
   - [Hello gRPC](./c1/hello-grpc.md)
+  - [gRPC 流](./c1/stream.md)
   - [Protobuf](./c1/protobuf.md)
-  - [单向流](./c1/stream.md)
-  - [双向流](./c1/stream-bi.md)
 
 # 进阶
   - [拦截器](./c2/interceptor.md)
@@ -17,7 +16,6 @@
   - [Metadata]()
   - [超时/取消]()
   - [监控]()
-  - [HTTP/2]()
 
 # 生态
 - [gRPC Gateway](./c3/gateway.md)

@@ -1,9 +1,6 @@
 # Protobuf语法
 
-gRPC推荐使用proto3，这里只介绍常用语法，按照官方文档的结构翻译，英文水平有限，复杂的部分果断放弃，更多高级使用姿势请参考[官方文档](https://developers.google.com/protocol-buffers/)
-
-> 建议初学者不要太刻意的记这里的语法，简单看一遍了解就好，使用过程有问题再回来查看。
-
+gRPC推荐使用proto3，这里介绍基本语法，更多详细使用方式建议查看[官方文档](https://developers.google.com/protocol-buffers/)
 
 ## Message定义
 
@@ -21,7 +18,7 @@ message SearchRequest {
 }
 ```
 
-> **首行要求明确声明使用的protobuf版本为`proto3`，如果不声明，编译器默认使用`proto2`。本声明必须在文件的首行。**
+> **首行要求明确声明使用的protobuf版本为`proto3`，如果不声明，编译器默认使用`proto2`。**
 
 
 一个`.proto`文件中可以定义多个message，一般用于同时定义多个相关的message，例如在同一个.proto文件中同时定义搜索请求和响应消息：
@@ -40,7 +37,6 @@ message SearchResponse {
 }
 ```
 
-
 ### 字段类型声明
 
 所有的字段需要前置声明数据类型，上面的示例指定了两个数值类型和一个字符串类型。除了基本的标量类型还有复合类型，如枚举、map、数组、甚至其它message类型等。后面会依次说明。
@@ -57,12 +53,10 @@ message SearchResponse {
 
 * 单数形态：一个message内同名单数形态的字段不能超过一个
 * repeated：前置`repeated`关键词，声明该字段为数组类型
-* `proto3`不支持`proto2`中的`required`和`optional`关键字
-
 
 ### 添加注释
 
-向`.proto`文件中添加注释，支持C/C++风格双斜线`//`单行注释。
+支持双斜线`//`单行注释
 
 ```protobuf
 syntax = "proto3";              // 协议版本声明
@@ -75,68 +69,42 @@ message SearchRequest {
 }
 ```
 
+## Service定义
 
-### 保留字段名与Tag
+如果想要将消息类型用在RPC(远程方法调用)系统中，可以在`.proto`文件中定义一个RPC服务接口，protoc编译器会根据所选择的不同语言生成服务接口代码。例如，想要定义一个RPC服务并具有一个方法，该方法接收`SearchRequest`并返回一个`SearchResponse`，此时可以在`.proto`文件中进行如下定义：
 
-可以使用`reserved`关键字指定保留字段名和标签。
-
-```protobuf
-message Foo {
-    reserved 2, 15, 9 to 11;
-    reserved "foo", "bar";
+```
+service SearchService {
+    rpc Search (SearchRequest) returns (SearchResponse) {}
 }
 ```
-> **注意，不能在一个`reserved`声明中混合字段名和标签。**
 
+生成的接口代码作为客户端与服务端的约定，服务端必须实现定义的所有接口方法，客户端直接调用同名方法向服务端发起请求。
 
-### `.proto`文件编译结果
+## 数据类型
 
-当使用protocol buffer编译器运行`.proto`文件时，编译器将生成所选语言的代码，用于使用在`.proto`文件中定义的消息类型、服务接口约定等。不同语言生成的代码格式不同：
+### 基本类型
+| .proto   | Go      |
+| -------- | ------- |
+| double   | float64 |
+| float    | float32 |
+| int32    | int32   |
+| int64    | int64   |
+| uint32   | uint32  |
+| uint64   | uint64  |
+| sint32   | int32   |
+| sint64   | int64   |
+| fixed32  | uint32  |
+| fixed64  | uint64  |
+| sfixed32 | int32   |
+| sfixed64 | int64   |
+| bool     | bool    |
+| string   | string  |
+| bytes    | []byte  |
 
-* C++: 每个`.proto`文件生成一个`.h`文件和一个`.cc`文件，每个消息类型对应一个类
-* Java: 生成一个`.java`文件，同样每个消息对应一个类，同时还有一个特殊的`Builder`类用于创建消息接口
-* Python: 姿势不太一样，每个`.proto`文件中的消息类型生成一个含有静态描述符的模块，该模块与一个元类*metaclass*在运行时创建需要的Python数据访问类
-* Go: 生成一个`.pb.go`文件，每个消息类型对应一个结构体
-* Ruby: 生成一个`.rb`文件的Ruby模块，包含所有消息类型
-* JavaNano: 类似Java，但不包含`Builder`类
-* Objective-C: 每个`.proto`文件生成一个`pbobjc.h`和一个`pbobjc.m`文件
-* C#: 生成`.cs`文件包含，每个消息类型对应一个类
+> 序列化时的编码规则请参考 [Protocol Buffer Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
 
-各种语言的更多的使用方法请参考[官方API文档](https://developers.google.com/protocol-buffers/docs/reference/overview)
-
-
-## 基本数据类型
-
-|.proto | C++ | Java | Python | Go | Ruby | C# |
-|-------|-----|------|--------|----|------|----|
-|double|double|double|float|float64|Float|double|
-|float|float|float|float|float32|Float|float|
-|int32|int32|int|int|int32|Fixnum or Bignum|int|
-|int64|int64|long|ing/long<sup>[3]</sup>|int64|Bignum|long|
-|uint32|uint32|int<sup>[1]</sup>|int/long<sup>[3]</sup>|uint32|Fixnum or Bignum|uint|
-|uint64|uint64|long<sup>[1]</sup>|int/long<sup>[3]</sup>|uint64|Bignum|ulong|
-|sint32|int32|int|intj|int32|Fixnum or Bignum|int|
-|sint64|int64|long|int/long<sup>[3]</sup>|int64|Bignum|long|
-|fixed32|uint32|int<sup>[1]</sup>|int|uint32|Fixnum or Bignum|uint|
-|fixed64|uint64|long<sup>[1]</sup>|int/long<sup>[3]</sup>|uint64|Bignum|ulong|
-|sfixed32|int32|int|int|int32|Fixnum or Bignum|int|
-|sfixed64|int64|long|int/long<sup>[3]</sup>|int64|Bignum|long|
-|bool|bool|boolean|boolean|bool|TrueClass/FalseClass|bool|
-|string|string|String|str/unicode<sup>[4]</sup>|string|String(UTF-8)|string|
-|bytes|string|ByteString|str|[]byte|String(ASCII-8BIT)|ByteString|
-
-关于这些类型在序列化时的编码规则请参考 [Protocol Buffer Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
-
-**<sup>[1]</sup>** java
-
-**<sup>[2]</sup>** all
-
-**<sup>[3]</sup>** 64
-
-**<sup>[4]</sup>** Python
-
-
-## 默认值
+### 默认值
 
 * 字符串类型默认为空字符串
 * 字节类型默认为空字节
@@ -146,8 +114,7 @@ message Foo {
 
 针对不同语言的默认值的具体行为参考 [generated code guide](https://developers.google.com/protocol-buffers/docs/reference/overview)
 
-
-## 枚举(Enum) 
+### 枚举(Enum) 
 
 当定义一个message时，想要一个字段只能是一个预定义好的值列表内的一个值，就需要用到enum类型了。
 
@@ -196,7 +163,7 @@ enum EnumNotAllowingAlias {
 
 > enum类型值同样支持文件级定义和message内定义，引用方式与message嵌套一致
 
-## 使用其它Message
+### 使用其它Message
 
 可以使用其它message类型作为字段类型。
 
@@ -214,39 +181,7 @@ message Result {
 }
 ```
 
-
-### 导入定义(import)
-
-上面的例子中，`Result`类型和`SearchResponse`类型定义在同一个`.proto`文件中，我们还可以使用import语句导入使用其它描述文件中声明的类型：
-
-```protobuf
-import "others.proto";
-```
-
-默认情况，只能使用直接导入的`.proto`文件内的定义。但是有时候需要移动`.proto`文件到其它位置，为了避免更新所有相关文件，可以在原位置放置一个模型.proto文件，使用`public`关键字，转发所有对新文件内容的引用，例如：
-
-```protobuf
-// new.proto
-// 所有新的定义在这里
-```
-
-```protobuf
-// old.proto
-// 客户端导入的原来的proto文件
-import public "new.proto";
-import "other.proto";
-```
-
-```protobuf
-// client.proto
-import "old.proto";
-// 这里可以使用old.proto和new.proto文件中的定义，但是不能使用other.proto文件中的定义。
-```
-
-protocol编译器会在编译命令中 `-I / --proto_path`参数指定的目录中查找导入的文件，如果没有指定该参数，默认在当前目录中查找。
-
-
-## Message嵌套
+### Message嵌套
 
 上面已经介绍过可以嵌套使用另一个message作为字段类型，其实还可以在一个message内部定义另一个message类型，作为子级message。
 
@@ -291,7 +226,7 @@ message Outer {                // Level 0
 ```
 
 
-## Map类型
+### Map类型
 
 proto3支持map类型声明:
 
@@ -307,6 +242,16 @@ map<string, Project> projects = 1;
 * `value_type`可以是除map以外的任意类型
 * map字段不支持`repeated`属性
 * 不要依赖map类型的字段顺序
+
+## 导入(import)
+
+可以使用import语句导入使用其它描述文件中声明的类型：
+
+```protobuf
+import "others.proto";
+```
+
+protoc编译器会在编译命令中 `-I / --proto_path`参数指定的目录中查找导入的文件，如果没有指定该参数，默认在当前目录中查找。
 
 
 ## 包(Packages)
@@ -327,28 +272,6 @@ message Foo {
     ...
 }
 ```
-在不同的语言中，包名定义对编译后生成的代码的影响不同：
-
-* C++ 中：对应C++命名空间，例如`Open`会在命名空间`foo::bar`中
-* Java 中：package会作为Java包名，除非指定了`option jave_package`选项
-* Python 中：package被忽略
-* Go 中：默认使用package名作为包名，除非指定了`option go_package`选项
-* JavaNano 中：同Java
-* C# 中：package会转换为驼峰式命名空间，如`Foo.Bar`,除非指定了`option csharp_namespace`选项
-
-
-## 定义服务(Service)
-
-如果想要将消息类型用在RPC(远程方法调用)系统中，可以在`.proto`文件中定义一个RPC服务接口，protocol编译器会根据所选择的不同语言生成服务接口代码。例如，想要定义一个RPC服务并具有一个方法，该方法接收`SearchRequest`并返回一个`SearchResponse`，此时可以在`.proto`文件中进行如下定义：
-
-```
-service SearchService {
-    rpc Search (SearchRequest) returns (SearchResponse) {}
-}
-```
-
-生成的接口代码作为客户端与服务端的约定，服务端必须实现定义的所有接口方法，客户端直接调用同名方法向服务端发起请求。
-
 
 ## 选项(Options)
 
@@ -361,6 +284,7 @@ service SearchService {
 * `java_package` (file option)：指定生成java类所在的包，如果在.proto文件中没有明确的声明java_package，会使用默认包名。不需要生成java代码时不起作用
 * `java_outer_classname` (file option)：指定生成Java类的名称，如果在.proto文件中没有明确声明java_outer_classname，生成的class名称将会根据.proto文件的名称采用驼峰式的命名方式进行生成。如（foo_bar.proto生成的java类名为FooBar.java）,不需要生成java代码时不起任何作用
 * `objc_class_prefix` (file option): 指定Objective-C类前缀，会前置在所有类和枚举类型名之前。没有默认值，应该使用3-5个大写字母。注意所有2个字母的前缀是Apple保留的。
+* `go_package` (file option): 指定生成go代码的包名，也会影响生成文件的路径
 
 
 ## 基本规范
@@ -395,22 +319,10 @@ service SearchService {
 
 运行命令：
 ```
-protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_out=DST_DIR --go_out=DST_DIR --ruby_out=DST_DIR --javanano_out=DST_DIR --objc_out=DST_DIR --csharp_out=DST_DIR path/to/file.proto
+protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_out=DST_DIR --go_out=DST_DIR --go-grpc_out=DST_DIR --ruby_out=DST_DIR --javanano_out=DST_DIR --objc_out=DST_DIR --csharp_out=DST_DIR path/to/file.proto
 ```
 
-这里只做参考就好，具体语言的编译实例请参考详细文档。
-
-* [Go generated code reference](https://developers.google.com/protocol-buffers/docs/reference/go-generated)
-* [C++ generated code reference](https://developers.google.com/protocol-buffers/docs/reference/cpp-generated)
-* [Java generated code reference](https://developers.google.com/protocol-buffers/docs/reference/java-generated)
-* [Python generated code reference](https://developers.google.com/protocol-buffers/docs/reference/python-generated)
-* [Objective-C generated code reference](https://developers.google.com/protocol-buffers/docs/reference/objective-c-generated)
-* [C# generated code reference](https://developers.google.com/protocol-buffers/docs/reference/csharp-generated)
-* [Javascript Generated Code Guide](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated)
-* [PHP Generated Code Guide](https://developers.google.com/protocol-buffers/docs/reference/php-generated)
-
-> 吐槽: 照着官方文档一步步操作不一定成功哦！
-
+具体语言的编译实例请参考[详细文档](https://developers.google.com/protocol-buffers/docs/reference/overview)。
 
 ## 更多
 
@@ -418,15 +330,12 @@ protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_ou
 * [Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)
 * [自定义Options](https://developers.google.com/protocol-buffers/docs/proto.html#customoptions)
 
-这些用法在实践中很少使用，这里不做介绍，有需要请参考[官方文档](https://developers.google.com/protocol-buffers/)。
 
-
-# Protobuf⇢Go转换
+## Protobuf⇢Go转换
 
 这里使用一个测试文件对照说明常用结构的protobuf到golang的转换。只说明关键部分代码，详细内容请查看完整文件。示例文件在`proto/test`目录下。
 
-
-## Package
+### Package
 
 在proto文件中使用`package`关键字声明包名，默认转换成go中的包名与此一致，如果需要指定不一样的包名，可以使用`go_package`选项：
 
@@ -435,7 +344,7 @@ package test;
 option go_package="test";
 ```
 
-## Message
+### Message
 
 proto中的`message`对应go中的`struct`，全部使用驼峰命名规则。嵌套定义的`message`，`enum`转换为go之后，名称变为`Parent_Child`结构。
 
@@ -520,7 +429,7 @@ var Test_Status_value = map[string]int32{
 }
 ```
 
-## Service
+### Service
 
 定义一个简单的Service，`TestService`有一个方法`Test`，接收一个`Request`参数，返回`Response`：
 

@@ -1,9 +1,8 @@
 # Hello gRPC
 
-这里从一个最简单的例子说明 gRPC 的基本使用流程，建议边看边实践。
+这里从一个简单的例子说明 gRPC 的基本使用流程，建议边看边实践。
 
 ## 环境准备
-
 ### Protobuf 编译器
 
 项目地址：[google/protobuf](https://github.com/google/protobuf)
@@ -33,8 +32,7 @@ $ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
 $ export PATH="$PATH:$(go env GOPATH)/bin"
 ```
-
-## 实现
+## 实践
 
 实现一个PingPong Service，客户端发送 ping 请求，服务端返回 pong 响应。
 
@@ -51,10 +49,10 @@ $ export PATH="$PATH:$(go env GOPATH)/bin"
 		|-- ping_grpc.pb.go // proto编译生成
 ```
 
-
-### Step1：编写接口描述文件：ping.proto
+### Step1：编写服务描述文件
 
 ```protobuf
+// src/protos/ping/ping.proto
 syntax = "proto3"; // 指定proto版本
 package ping;     // 指定包名
 
@@ -63,12 +61,12 @@ option go_package = "protos/ping";
 
 // 定义PingPong服务
 service PingPong {
-	rpc Ping(PingRequest) returns (PongResponse);
+    rpc Ping(PingRequest) returns (PongResponse);
 }
 
 // PingRequest 请求结构
 message PingRequest {
-	string value = 1;
+    string value = 1;
 }
 
 // PongResponse 响应结构
@@ -77,8 +75,7 @@ message PongResponse {
 }
 ```
 
-这里大概看一下`ping.proto`文件的内容，里面定义了一个名为`PingPong`的 service，包含一个`Ping`方法，同时声明了`PingRequest`和`PongResponse`消息结构用于请求和响应。客户端使用`PingRequest`参数调用`Ping`方法请求服务端，服务端响应`PongResponse`消息，一个最简单的服务就定义好了。
-
+定义了一个名为`PingPong`的 service，包含一个`Ping`方法，同时声明了`PingRequest`和`PongResponse`消息结构用于请求和响应。客户端使用`PingRequest`参数调用`Ping`方法请求服务端，服务端响应`PongResponse`消息，一个最简单的服务就定义好了。
 
 ## Step2：编译proto文件
 
@@ -128,65 +125,48 @@ func main() {
 }
 ```
 
-服务端引入编译后的`proto`包，定义一个空结构用于实现约定的接口，接口描述可以查看`hello.pb.go`文件中的`HelloServer`接口描述。实例化grpc Server并注册HelloService，开始提供服务。
+服务端引入编译生成的包，定义一个`PingPongServer`用于实现约定的接口，接口描述可以查看`ping_grpc.pb.go`文件中的`PingPongServer`接口描述。实例化grpc Server并注册PingPongServer开始提供服务。
 
-运行：
-
-```sh
-$ go run main.go
-Listen on 127.0.0.1:50052  //服务端已开启并监听50052端口
-```
-
-**Step4：实现客户端调用 `client/main.go`**
+### Step4：客户端调用
 
 ```go
+// src/ping/client.go
 package main
 
 import (
-	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
-	"golang.org/x/net/context"
+	"context"
+	"log"
+
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
+
+	pb "github.com/jergoo/go-grpc-tutorial/protos/ping" // 引入编译生成的包
 )
 
-const (
-	// Address gRPC服务地址
-	Address = "127.0.0.1:50052"
-)
-
-func main() {
-	// 连接
-	conn, err := grpc.Dial(Address, grpc.WithInsecure())
+// Ping 单次请求-响应模式
+func Ping() {
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
 	if err != nil {
-		grpclog.Fatalln(err)
+		log.Fatal(err)
 	}
 	defer conn.Close()
 
-	// 初始化客户端
-	c := pb.NewHelloClient(conn)
-
-	// 调用方法
-	req := &pb.HelloRequest{Name: "gRPC"}
-	res, err := c.SayHello(context.Background(), req)
-
+	// 实例化客户端并调用
+	client := pb.NewPingPongClient(conn)
+	res, err := client.Ping(context.Background(), &pb.PingRequest{Value: "ping"})
 	if err != nil {
-		grpclog.Fatalln(err)
+		log.Fatal(err)
 	}
-
-	grpclog.Println(res.Message)
+	fmt.Println(res.Value)
 }
 ```
 
-客户端初始化连接后直接调用`hello.pb.go`中实现的`SayHello`方法，即可向服务端发起请求，使用姿势就像调用本地方法一样。
+客户端初始化连接后直接调用`Ping`方法，即可向服务端发起请求并获取响应，就像调用本地方法一样。
 
+## 总结
 
-运行：
+到此为止一个简单的gRPC服务就完成了，基本流程如下：
 
-```sh
-$ go run main.go
-Hello gRPC.    // 接收到服务端响应
-```
-
-如果你收到了"Hello gRPC"的回复，恭喜你已经会使用github.com/jergoo/go-grpc-tutorial/proto/hello了。
-
-> 建议到这里仔细看一看hello.pb.go文件中的内容，对比hello.proto文件，理解protobuf中的定义转换为golang后的结构。
+1. 使用protobuf编写服务描述文件，定义消息结构和服务接口
+2. 编译proto文件，生成服务端和客户端接口代码
+3. 服务端实现`.pb.go`文件中的server接口
+4. 客户端直接使用`.pb.go`文件中的client调用接口
