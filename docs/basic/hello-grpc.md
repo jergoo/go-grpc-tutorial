@@ -1,6 +1,6 @@
 # Hello gRPC
 
-从一个简单的示例说明 go gRPC 的基本使用流程，建议边看边操作。实现一个 PingPong 服务，客户端发送 ping 请求，服务端返回 pong 响应。
+从一个简单的示例说明 go gRPC 的基本使用流程，实现一个 PingPong 服务，客户端发送 ping 请求，服务端返回 pong 响应。
 
 **项目结构：**
 

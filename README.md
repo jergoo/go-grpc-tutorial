@@ -1,17 +1,18 @@
 # Go gRPC Tutorial
 
-Go gRPC 简明指南
+本项目旨在提供一个简明的 go gRPC 使用教程，帮助新手快速学会使用 gRPC，而非深究其底层原理，内容包含 gRPC 最常使用的功能特性，以及 gRPC 生态中的常用工具。
 
-访问地址：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
+在线阅读：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
 
-### 历史版本
+阅读建议：身心放松，边看边敲。
 
-SegmentFault **Golang gRPC实践** 系列文章:
+---
 
-* [Golang gRPC实践 连载一 gRPC介绍与安装](https://segmentfault.com/a/1190000007880647)
-* [Golang gRPC实践 连载二 Hello gRPC](https://segmentfault.com/a/1190000007909829)
-* [Golang gRPC实践 连载三 Protobuf语法](https://segmentfault.com/a/1190000007917576)
-* [Golang gRPC实践 连载四 gRPC认证](https://segmentfault.com/a/1190000007933303)
-* [Golang gRPC实践 连载五 拦截器 Interceptor](https://segmentfault.com/a/1190000007997759)
-* [Golang gRPC实践 连载六 内置Trace](https://segmentfault.com/a/1190000008087436)  
-* [Golang gRPC实践 连载七 http转换](https://segmentfault.com/a/1190000008106582)
+> 历史版本：SegmentFault **Golang gRPC实践** 系列文章:
+> * [Golang gRPC实践 连载一 gRPC介绍与安装](https://segmentfault.com/a/1190000007880647)
+> * [Golang gRPC实践 连载二 Hello gRPC](https://segmentfault.com/a/1190000007909829)
+> * [Golang gRPC实践 连载三 Protobuf语法](https://segmentfault.com/a/1190000007917576)
+> * [Golang gRPC实践 连载四 gRPC认证](https://segmentfault.com/a/1190000007933303)
+> * [Golang gRPC实践 连载五 拦截器 Interceptor](https://segmentfault.com/a/1190000007997759)
+> * [Golang gRPC实践 连载六 内置Trace](https://segmentfault.com/a/1190000008087436)  
+> * [Golang gRPC实践 连载七 http转换](https://segmentfault.com/a/1190000008106582)

@@ -5,23 +5,23 @@
 ---
 
 # 入门
-  - [Hello gRPC](./c1/hello-grpc.md)
-  - [gRPC 流](./c1/stream.md)
-  - [Protobuf](./c1/protobuf.md)
+  - [Hello gRPC](./basic/hello-grpc.md)
+  - [gRPC 流](./basic/stream.md)
+  - [Protobuf](./basic/protobuf.md)
 
 # 进阶
-  - [拦截器](./c2/interceptor.md)
-  - [安全认证](./c2/auth.md)
+  - [拦截器](./advance/interceptor.md)
+  - [安全认证](./advance/auth.md)
   - [Metadata]()
-  - [负载均衡](./c2/load-balancer.md)
+  - [负载均衡](./advance/load-balancer.md)
   - [超时/取消]()
   - [监控]()
 
 # 生态
-- [gRPC Gateway](./c3/gateway.md)
-- [gRPC Middleware](./c3/middleware.md)
-- [grpcurl](./c3/grpcurl.md)
-- [buf](./c3/buf.md)
+- [gRPC Gateway](./ecosystem/gateway.md)
+- [gRPC Middleware](./ecosystem/middleware.md)
+- [grpcurl](./ecosystem/grpcurl.md)
+- [buf](./ecosystem/buf.md)
 
 ---
 
