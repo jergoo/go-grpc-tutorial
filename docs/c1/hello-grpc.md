@@ -6,13 +6,12 @@
 
 ```
 |—— src/ping/
-	|—— client.go // 客户端
-	|—— server.go // 服务端
-|—— src/protos/
-	|—— ping/
+	|—— protos/
 		|—— ping.proto   // protobuf描述文件
 		|—— ping.pb.go   // protoc编译生成
 		|-- ping_grpc.pb.go // protoc编译生成
+	|—— client.go // 客户端
+	|—— server.go // 服务端
 ```
 
 ## 第1步：编写protobuf描述文件
@@ -20,10 +19,10 @@
 ```protobuf
 // src/protos/ping/ping.proto
 syntax = "proto3"; // 指定proto版本
-package ping;     // 指定包名
+package protos;     // 指定包名
 
 // 指定go包路径
-option go_package = "protos/ping";
+option go_package = "ping/protos";
 
 // 定义PingPong服务
 service PingPong {
@@ -48,9 +47,9 @@ message PongResponse {
 
 ```sh
 $ cd src
-$ protoc --go_out=. --go-grpc_out=. protos/ping/ping.proto
+$ protoc --go_out=. --go-grpc_out=. ./ping/protos/ping.proto
 ```
-在src目录执行编译命令，会在目录`src/protos/ping`内生成两个文件`ping.pb.go`和`ping_grpc.pb.go`。可以大概看一下这两个文件的内容，`ping.pb.go` 包含了之前定义的两个message相关的结构，`ping_grpc.pb.go`包含了定义的service相关的客户端和服务端接口，**不要修改这两个文件的内容**。
+在src目录执行编译命令，会在目录`src/ping/protos`内生成两个文件`ping.pb.go`和`ping_grpc.pb.go`。可以大概看一下这两个文件的内容，`ping.pb.go` 包含了之前定义的两个message相关的结构，`ping_grpc.pb.go`包含了定义的service相关的客户端和服务端接口，**不要修改这两个文件的内容**。
 
 ## 第3步：实现服务端接口
 
@@ -65,7 +64,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/jergoo/go-grpc-tutorial/protos/ping" // 引入编译生成的包
+	pb "github.com/jergoo/go-grpc-tutorial/ping/protos" // 引入编译生成的包
 )
 
 // PingPongServer 实现 pb.PingPongServer 接口
@@ -106,7 +105,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/jergoo/go-grpc-tutorial/protos/ping" // 引入编译生成的包
+	pb "github.com/jergoo/go-grpc-tutorial/ping/protos" // 引入编译生成的包
 )
 
 // Ping 单次请求-响应模式

@@ -1,8 +1,8 @@
 syntax = "proto3"; // 指定proto版本
-package ping;     // 指定包名
+package protos;    // 指定包名
 
 // 指定go包路径
-option go_package = "protos/ping";
+option go_package = "ping/protos";
 
 // 定义PingPong服务
 service PingPong {

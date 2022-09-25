@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.6
-// source: protos/ping/ping.proto
+// source: ping/protos/ping.proto
 
-package ping
+package protos
 
 import (
 	context "context"
@@ -42,7 +42,7 @@ func NewPingPongClient(cc grpc.ClientConnInterface) PingPongClient {
 
 func (c *pingPongClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PongResponse, error) {
 	out := new(PongResponse)
-	err := c.cc.Invoke(ctx, "/ping.PingPong/Ping", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/protos.PingPong/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *pingPongClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc
 }
 
 func (c *pingPongClient) MultiPong(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (PingPong_MultiPongClient, error) {
-	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[0], "/ping.PingPong/MultiPong", opts...)
+	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[0], "/protos.PingPong/MultiPong", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (x *pingPongMultiPongClient) Recv() (*PongResponse, error) {
 }
 
 func (c *pingPongClient) MultiPing(ctx context.Context, opts ...grpc.CallOption) (PingPong_MultiPingClient, error) {
-	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[1], "/ping.PingPong/MultiPing", opts...)
+	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[1], "/protos.PingPong/MultiPing", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (x *pingPongMultiPingClient) CloseAndRecv() (*PongResponse, error) {
 }
 
 func (c *pingPongClient) MultiPingPong(ctx context.Context, opts ...grpc.CallOption) (PingPong_MultiPingPongClient, error) {
-	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[2], "/ping.PingPong/MultiPingPong", opts...)
+	stream, err := c.cc.NewStream(ctx, &PingPong_ServiceDesc.Streams[2], "/protos.PingPong/MultiPingPong", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func _PingPong_Ping_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ping.PingPong/Ping",
+		FullMethod: "/protos.PingPong/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PingPongServer).Ping(ctx, req.(*PingRequest))
@@ -285,7 +285,7 @@ func (x *pingPongMultiPingPongServer) Recv() (*PingRequest, error) {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PingPong_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ping.PingPong",
+	ServiceName: "protos.PingPong",
 	HandlerType: (*PingPongServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -311,5 +311,5 @@ var PingPong_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "protos/ping/ping.proto",
+	Metadata: "ping/protos/ping.proto",
 }

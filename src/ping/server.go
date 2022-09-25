@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/jergoo/go-grpc-tutorial/protos/ping" // 引入编译生成的包
+	pb "github.com/jergoo/go-grpc-tutorial/ping/protos" // 引入编译生成的包
 )
 
 // PingPongServer 实现 pb.PingPongServer 接口

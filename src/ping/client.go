@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/jergoo/go-grpc-tutorial/protos/ping" // 引入编译生成的包
+	pb "github.com/jergoo/go-grpc-tutorial/ping/protos" // 引入编译生成的包
 )
 
 // Ping 单次请求-响应模式
