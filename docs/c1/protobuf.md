@@ -1,6 +1,6 @@
-# Protobuf语法
+# Protobuf
 
-gRPC推荐使用proto3，这里介绍基本语法，更多详细使用方式建议查看[官方文档](https://developers.google.com/protocol-buffers/)
+gRPC推荐使用proto3，这里只介绍基本语法，更多详细语法及高级特性请查看[官方文档](https://developers.google.com/protocol-buffers/)
 
 ## Message定义
 
@@ -102,7 +102,6 @@ service SearchService {
 | string   | string  |
 | bytes    | []byte  |
 
-> 序列化时的编码规则请参考 [Protocol Buffer Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
 
 ### 默认值
 
@@ -112,7 +111,7 @@ service SearchService {
 * 数值类型默认为0值
 * enums类型默认为第一个定义的枚举值，必须是0
 
-针对不同语言的默认值的具体行为参考 [generated code guide](https://developers.google.com/protocol-buffers/docs/reference/overview)
+针对不同语言的默认值的具体行为参考 
 
 ### 枚举(Enum) 
 
@@ -322,13 +321,7 @@ message Foo {
 protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_out=DST_DIR --go_out=DST_DIR --go-grpc_out=DST_DIR --ruby_out=DST_DIR --javanano_out=DST_DIR --objc_out=DST_DIR --csharp_out=DST_DIR path/to/file.proto
 ```
 
-具体语言的编译实例请参考[详细文档](https://developers.google.com/protocol-buffers/docs/reference/overview)。
 
-## 更多
-
-* [Any类型](https://developers.google.com/protocol-buffers/docs/proto3#any)
-* [Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)
-* [自定义Options](https://developers.google.com/protocol-buffers/docs/proto.html#customoptions)
 
 
 ## Protobuf⇢Go转换
@@ -468,3 +461,11 @@ type TestServiceServer interface {
 ```
 
 生成的go代码中包含该Service定义的接口，客户端接口已经自动实现了，直接供客户端使用者调用，服务端接口需要由服务提供方实现。
+
+
+具体语言的编译实例请参考[详细文档](https://developers.google.com/protocol-buffers/docs/reference/overview)。
+
+## 参考文档
+[Language Guide(proto3)](https://developers.google.com/protocol-buffers/docs/proto3)
+[Protocol Buffer Encoding](https://developers.google.com/protocol-buffers/docs/encoding)
+[Go Generated Code Guide](https://developers.google.com/protocol-buffers/docs/reference/go-generated)

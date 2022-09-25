@@ -1,40 +1,6 @@
 # Hello gRPC
 
-这里从一个简单的例子说明 gRPC 的基本使用流程，建议边看边实践。
-
-## 环境准备
-### Protobuf 编译器
-
-项目地址：[google/protobuf](https://github.com/google/protobuf)
-
-这里使用`brew`工具安装
-
-```sh
-$ brew install protobuf
-```
-
-执行`protoc`命令查看当前版本：
-
-```sh
-$ protoc --version
-libprotoc 3.21.6
-```
-### Go 编译插件
-
-项目地址：
-* [protobuf-go](https://github.com/protocolbuffers/protobuf-go)
-* [grpc-go](https://github.com/grpc/grpc-go)
-
-安装：
-```sh
-$ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-$ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
-
-$ export PATH="$PATH:$(go env GOPATH)/bin"
-```
-## 实践
-
-实现一个PingPong Service，客户端发送 ping 请求，服务端返回 pong 响应。
+从一个简单的示例说明 go gRPC 的基本使用流程，建议边看边操作。实现一个 PingPong 服务，客户端发送 ping 请求，服务端返回 pong 响应。
 
 **项目结构：**
 
@@ -44,48 +10,49 @@ $ export PATH="$PATH:$(go env GOPATH)/bin"
 	|—— server.go // 服务端
 |—— src/protos/
 	|—— ping/
-		|—— ping.proto   // proto描述文件
-		|—— ping.pb.go   // proto编译生成
-		|-- ping_grpc.pb.go // proto编译生成
+		|—— ping.proto   // protobuf描述文件
+		|—— ping.pb.go   // protoc编译生成
+		|-- ping_grpc.pb.go // protoc编译生成
 ```
 
-### Step1：编写服务描述文件
+## 第1步：编写protobuf描述文件
 
 ```protobuf
 // src/protos/ping/ping.proto
 syntax = "proto3"; // 指定proto版本
 package ping;     // 指定包名
 
-// 指定go包名
+// 指定go包路径
 option go_package = "protos/ping";
 
 // 定义PingPong服务
 service PingPong {
+	// Ping 发送 ping 请求，接收 pong 响应
     rpc Ping(PingRequest) returns (PongResponse);
 }
 
 // PingRequest 请求结构
 message PingRequest {
-    string value = 1;
+    string value = 1; // value字段为string类型
 }
 
 // PongResponse 响应结构
 message PongResponse {
-    string value = 1;
+    string value = 1; // value字段为string类型
 }
 ```
 
-定义了一个名为`PingPong`的 service，包含一个`Ping`方法，同时声明了`PingRequest`和`PongResponse`消息结构用于请求和响应。客户端使用`PingRequest`参数调用`Ping`方法请求服务端，服务端响应`PongResponse`消息，一个最简单的服务就定义好了。
+定义了一个名为`PingPong`的 service，包含一个`Ping`方法，同时声明了`PingRequest`和`PongResponse`消息结构用于请求和响应。客户端使用`PingRequest`参数调用`Ping`方法请求服务端，服务端响应`PongResponse`消息，一个基本的服务就定义好了。
 
-## Step2：编译proto文件
+## 第2步：编译protobuf文件
 
 ```sh
 $ cd src
 $ protoc --go_out=. --go-grpc_out=. protos/ping/ping.proto
 ```
-在src目录执行编译命令，会在目录`src/protos/ping`内生成两个文件`ping.pb.go`和`ping_grpc.pb.go`。可以大概看一下这两个文件的内容，`ping.pb.go` 包含了之前定义的两个message相关的结构，`ping_grpc.pb.go`包含了定义的service相关的客户端和服务端接口，**注意不要手动修改这两个文件**。
+在src目录执行编译命令，会在目录`src/protos/ping`内生成两个文件`ping.pb.go`和`ping_grpc.pb.go`。可以大概看一下这两个文件的内容，`ping.pb.go` 包含了之前定义的两个message相关的结构，`ping_grpc.pb.go`包含了定义的service相关的客户端和服务端接口，**不要修改这两个文件的内容**。
 
-### Step3：实现服务端接口
+## 第3步：实现服务端接口
 
 ```go
 // src/ping/server.go
@@ -103,7 +70,7 @@ import (
 
 // PingPongServer 实现 pb.PingPongServer 接口
 type PingPongServer struct {
-	pb.UnsafePingPongServer
+	pb.UnimplementedPingPongServer
 }
 
 // Ping 单次请求-响应模式
@@ -125,9 +92,9 @@ func main() {
 }
 ```
 
-服务端引入编译生成的包，定义一个`PingPongServer`用于实现约定的接口，接口描述可以查看`ping_grpc.pb.go`文件中的`PingPongServer`接口描述。实例化grpc Server并注册PingPongServer开始提供服务。
+服务端引入编译生成的包，定义一个`PingPongServer`用于实现约定的接口，接口描述可以查看`ping_grpc.pb.go`文件中的`PingPongServer`接口。实例化grpc Server并注册PingPongServer开始提供服务。
 
-### Step4：客户端调用
+## 第4步：客户端调用
 
 ```go
 // src/ping/client.go
@@ -156,17 +123,16 @@ func Ping() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(res.Value)
+	log.Println(res.Value)
 }
 ```
 
-客户端初始化连接后直接调用`Ping`方法，即可向服务端发起请求并获取响应，就像调用本地方法一样。
+客户端初始化连接，使用`ping_grpc.pb.go`中的`PingPongClient`实例调用`Ping`方法，即可向服务端发起请求并获取响应，就像调用本地方法一样。
 
-## 总结
+---
 
-到此为止一个简单的gRPC服务就完成了，基本流程如下：
-
-1. 使用protobuf编写服务描述文件，定义消息结构和服务接口
-2. 编译proto文件，生成服务端和客户端接口代码
-3. 服务端实现`.pb.go`文件中的server接口
-4. 客户端直接使用`.pb.go`文件中的client调用接口
+> 以上就是一个最基础的gRPC服务，使用非常简单，底层网络细节全部由gRPC处理，开发者只需要关注接口设计，基本流程如下：
+> 1. 编写protobuf描述文件，定义消息结构和服务接口
+> 2. 编译protobuf文件，生成服务端和客户端接口代码
+> 3. 实现`*_grpc.pb.go`文件中描述的服务端接口
+> 4. 使用`*_grpc.pb.go`文件中的client调用服务

@@ -1,0 +1,50 @@
+syntax = "proto3"; // 指定proto版本
+package example; // 指定包名
+option go_package="protos/example"; // 指定go包路径
+
+// ExampleService 示例
+service ExampleService {
+    // Single 单次请求响应模式
+	rpc Single(Request) returns (Response);
+    // ServerStream 服务端流模式
+    rpc ServerStream(Request) returns (stream Response);
+    // ClientStream 客户端流模式
+    rpc ClientStream(stream Request) returns (Response);
+    // BiStream 双向流模式
+    rpc BiStream(stream Request) returns (stream Response);
+}
+
+// Request 请求结构
+message Request {
+	string value = 1;
+}
+
+// Response 响应结构
+message Response {
+    string valuee = 1;
+}
+
+// Msg message 数据类型示例
+message Msg {
+    int32 i32 = 1;
+    int64 i64 = 2;
+    float f32 = 3;
+    double f64  = 4;
+    string str = 5;
+    bool boolean = 6;
+    bytes byteArr = 7;
+    map<string, string> dict = 8;
+    Status status = 9;
+    EmbMsg embMsg = 10;
+}
+
+message EmbMsg {
+    string value = 1;
+}
+
+// Status 枚举
+enum Status {
+    OK = 0;
+    FAIL = 1;
+}
+

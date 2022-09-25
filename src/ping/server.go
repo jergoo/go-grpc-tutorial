@@ -14,7 +14,7 @@ import (
 
 // PingPongServer 实现 pb.PingPongServer 接口
 type PingPongServer struct {
-	pb.UnsafePingPongServer
+	pb.UnimplementedPingPongServer // 兼容性需要，避免未实现server接口全部方法
 }
 
 // Ping 单次请求-响应模式

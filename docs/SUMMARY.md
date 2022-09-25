@@ -1,6 +1,6 @@
 # Summary
 
-[前言](./intro.md)
+[前言](./preface.md)
 
 ---
 
@@ -12,8 +12,8 @@
 # 进阶
   - [拦截器](./c2/interceptor.md)
   - [安全认证](./c2/auth.md)
-  - [负载均衡](./c2/load-balancer.md)
   - [Metadata]()
+  - [负载均衡](./c2/load-balancer.md)
   - [超时/取消]()
   - [监控]()
 

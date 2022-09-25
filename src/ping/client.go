@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log"
 	"time"
@@ -26,7 +25,7 @@ func Ping() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(res.Value)
+	log.Println(res.Value)
 }
 
 // MultiPong 服务端流模式
