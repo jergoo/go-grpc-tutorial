@@ -2,8 +2,7 @@
 
 ---
 
-gRPC推荐使用proto3，这里只介绍基本语法，重点关注如何描述一个服务，更多详细语法及高级特性请查看[官方文档](https://developers.google.com/protocol-buffers/)
-
+ProtoBuf 是由 Google 开发的一种数据描述语言，应用于跨语言的接口规范描述，同时也是一种数据序列化协议（类似于XML、JSON），能够将数据进行序列化，广泛应用在数据存储、通信协议等方面。这里只介绍基本语法，重点关注如何描述一个服务，更多详细语法及高级特性请查看[官方文档](https://developers.google.com/protocol-buffers/)
 
 ## 基本结构
 
