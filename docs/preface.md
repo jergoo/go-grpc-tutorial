@@ -1,5 +1,7 @@
 # 前言
 
+---
+
 [gRPC](https://grpc.io/) 是一个高性能、开源、通用的RPC框架，由Google推出，基于[HTTP2](https://http2.github.io/)协议标准设计开发，默认采用[Protocol Buffers](https://developers.google.com/protocol-buffers/)数据序列化协议，支持多种开发语言。gRPC提供了一种简单的方法来精确的定义服务，并且为客户端和服务端自动生成可靠的功能库。
 
 在gRPC客户端可以直接调用不同服务器上的远程程序，使用姿势看起来就像调用本地程序一样，很容易去构建分布式应用和服务。和很多RPC系统一样，服务端负责实现定义好的接口并处理客户端的请求，客户端根据接口描述直接调用需要的服务。客户端和服务端可以分别使用gRPC支持的不同语言实现。
@@ -29,7 +31,7 @@
 
 项目地址：[google/protobuf](https://github.com/google/protobuf)
 
-这里使用`brew`工具安装
+这里使用`brew`工具安装，也可以下载编译好的可执行文件：
 
 ```sh
 $ brew install protobuf
@@ -58,4 +60,4 @@ $ export PATH="$PATH:$(go env GOPATH)/bin"
 
 ---
 
-> 本项目文档和源码保存在 [go-grpc-tutorial](https://github.com/jergoo/go-grpc-tutorial) 项目中。
+> 本项目文档和源码 [go-grpc-tutorial](https://github.com/jergoo/go-grpc-tutorial)

@@ -81,9 +81,27 @@ func (s *PingPongServer) MultiPingPong(stream pb.PingPong_MultiPingPongServer) e
 	return nil
 }
 
+// type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
+
+// 服务端拦截器 - 记录请求和响应日志
+func serverLogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	// 前置逻辑
+	log.Printf("[Server] accept request: %s", info.FullMethod)
+
+	// 处理请求
+	response, err := handler(ctx, req)
+
+	// 后置逻辑
+	log.Printf("[Server] response: %s", response)
+
+	return response, err
+}
+
 // 启动server
 func main() {
-	srv := grpc.NewServer()
+	// 以option的方式添加拦截器
+	srv := grpc.NewServer(grpc.UnaryInterceptor(serverLogInterceptor))
+
 	// 注册 PingPongServer
 	pb.RegisterPingPongServer(srv, &PingPongServer{})
 	lis, err := net.Listen("tcp", ":1234")

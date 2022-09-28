@@ -1,6 +1,6 @@
 syntax = "proto3"; // 指定proto版本
 package example; // 指定包名
-option go_package="/example"; // 指定go包路径
+option go_package="protos/example"; // 指定go包路径
 
 // ExampleService 示例
 service ExampleService {
@@ -36,6 +36,7 @@ message Msg {
     map<string, string> dict = 8;
     Status status = 9;
     EmbMsg embMsg = 10;
+    repeated int64 intArr = 11;
 }
 
 message EmbMsg {
@@ -47,4 +48,3 @@ enum Status {
     OK = 0;
     FAIL = 1;
 }
-

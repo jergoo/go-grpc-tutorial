@@ -13,7 +13,8 @@ import (
 
 // Ping 单次请求-响应模式
 func Ping() {
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	// 以option方式添加拦截器
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientLogInterceptor))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,4 +136,20 @@ func MultiPingPong() {
 	stream.CloseSend()
 	// 等待接收完成
 	<-c
+}
+
+// type UnaryClientInterceptor func(ctx context.Context, method string, req, reply interface{}, cc *ClientConn, invoker UnaryInvoker, opts ...CallOption) error
+
+// 客户端拦截器 - 记录请求和响应日志
+func clientLogInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	// 前置逻辑
+	log.Printf("[Client] send request: %s", method)
+
+	// 发起请求
+	err := invoker(ctx, method, req, reply, cc, opts...)
+
+	// 后置逻辑
+	log.Printf("[Client] response: %s", reply)
+
+	return err
 }

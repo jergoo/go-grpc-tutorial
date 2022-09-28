@@ -5,3 +5,8 @@ description = "Go gRPC Tutorial"
 language = "zh"
 multilingual = false
 src = "docs"
+
+[preprocessor.pagetoc]
+[output.html]
+additional-css = ["theme/pagetoc.css"]
+additional-js  = ["theme/pagetoc.js"]
