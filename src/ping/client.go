@@ -38,6 +38,7 @@ func MultiPong() {
 
 	// 实例化客户端并调用
 	client := pb.NewPingPongClient(conn)
+	// 获得对 stream 对象的引用
 	stream, err := client.MultiPong(context.Background(), &pb.PingRequest{Value: "ping"})
 	if err != nil {
 		log.Fatal(err)
@@ -72,7 +73,7 @@ func MultiPing() {
 	}
 
 	// 发送数据
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 5; i++ {
 		data := &pb.PingRequest{Value: "ping"}
 		err = stream.Send(data)
 		if err != nil {
@@ -107,6 +108,9 @@ func MultiPingPong() {
 	// 在另一个goroutine中接收数据
 	c := make(chan struct{})
 	go func(stream pb.PingPong_MultiPingPongClient, c chan struct{}) {
+		defer func() {
+			c <- struct{}{}
+		}()
 		for {
 			msg, err := stream.Recv()
 			if err != nil {
@@ -117,11 +121,10 @@ func MultiPingPong() {
 			}
 			log.Printf("recv:%s\n", msg.Value)
 		}
-		c <- struct{}{}
 	}(stream, c)
 
 	// 发送数据
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 6; i++ {
 		data := &pb.PingRequest{Value: "ping"}
 		err = stream.Send(data)
 		if err != nil {

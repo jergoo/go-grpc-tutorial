@@ -92,12 +92,12 @@ func Ping() {
 >
 > ```sh
 > // server
-> 2022/09/27 23:25:36 [Server] accept request: /protos.PingPong/Ping
-> 2022/09/27 23:25:36 [Server] response: value:"pong"
+> 2022/09/27 00:00:00 [Server] accept request: /protos.PingPong/Ping
+> 2022/09/27 00:00:00 [Server] response: value:"pong"
 >
 > // client
-> 2022/09/27 23:25:36 [Client] send request: /protos.PingPong/Ping
-> 2022/09/27 23:25:36 [Client] response: value:"pong"
+> 2022/09/27 00:00:00 [Client] send request: /protos.PingPong/Ping
+> 2022/09/27 00:00:00 [Client] response: value:"pong"
 > ```
 
 ## 流拦截器
