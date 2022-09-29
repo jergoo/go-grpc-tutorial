@@ -6,6 +6,9 @@ language = "zh"
 multilingual = false
 src = "book"
 
+[build]
+build-dir = "docs"
+
 [preprocessor.pagetoc]
 [output.html]
 additional-css = ["theme/pagetoc.css"]
