@@ -4,7 +4,7 @@ authors = ["jergoo"]
 description = "Go gRPC Tutorial"
 language = "zh"
 multilingual = false
-src = "docs"
+src = "book"
 
 [preprocessor.pagetoc]
 [output.html]
