@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Hello gRPC - Go gRPC 简明指南</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Go gRPC Tutorial">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/pagetoc.css">
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="../basic/index.html"><strong aria-hidden="true">1.</strong> 入门</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../basic/hello-grpc.html" class="active"><strong aria-hidden="true">1.1.</strong> Hello gRPC</a></li><li class="chapter-item expanded "><a href="../basic/stream.html"><strong aria-hidden="true">1.2.</strong> gRPC 流</a></li><li class="chapter-item expanded "><a href="../basic/protobuf.html"><strong aria-hidden="true">1.3.</strong> Protobuf</a></li></ol></li><li class="chapter-item expanded "><a href="../advance/index.html"><strong aria-hidden="true">2.</strong> 进阶</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../advance/interceptor.html"><strong aria-hidden="true">2.1.</strong> 拦截器</a></li><li class="chapter-item expanded "><a href="../advance/auth.html"><strong aria-hidden="true">2.2.</strong> 安全认证</a></li><li class="chapter-item expanded "><a href="../advance/metadata.html"><strong aria-hidden="true">2.3.</strong> metadata</a></li><li class="chapter-item expanded "><a href="../advance/monitor/index.html"><strong aria-hidden="true">2.4.</strong> 监控</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../advance/monitor/log.html"><strong aria-hidden="true">2.4.1.</strong> log</a></li><li class="chapter-item expanded "><a href="../advance/monitor/metrics.html"><strong aria-hidden="true">2.4.2.</strong> metrics</a></li><li class="chapter-item expanded "><a href="../advance/monitor/tracing.html"><strong aria-hidden="true">2.4.3.</strong> tracing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../ecosystem/index.html"><strong aria-hidden="true">3.</strong> 生态</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ecosystem/gateway.html"><strong aria-hidden="true">3.1.</strong> gRPC Gateway</a></li><li class="chapter-item expanded "><a href="../ecosystem/middleware.html"><strong aria-hidden="true">3.2.</strong> gRPC Middleware</a></li><li class="chapter-item expanded "><a href="../ecosystem/grpcurl.html"><strong aria-hidden="true">3.3.</strong> grpcurl</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Go gRPC 简明指南</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main><div class="sidetoc"><nav class="pagetoc"></nav></div>
+                        <h1 id="hello-grpc"><a class="header" href="#hello-grpc">Hello gRPC</a></h1>
+<hr />
+<p>从一个简单的示例说明 go gRPC 的基本使用流程，实现一个 PingPong 服务，客户端发送 ping 请求，服务端返回 pong 响应。</p>
+<p><strong>源码目录：</strong></p>
+<pre><code>|—- src/
+	|-- ping/
+		|—— client.go // 客户端
+		|—— server.go // 服务端
+	|—- protos/ping/
+		|—— ping.proto   // protobuf描述文件
+		|—— ping.pb.go   // protoc编译生成
+    	|-- ping_grpc.pb.go // protoc编译生成
+</code></pre>
+<h2 id="编写-protobuf-文件"><a class="header" href="#编写-protobuf-文件">编写 protobuf 文件</a></h2>
+<pre><code class="language-protobuf">// src/protos/ping/ping.proto
+syntax = &quot;proto3&quot;; // 指定proto版本
+package protos;     // 指定包名
+
+// 指定go包路径
+option go_package = &quot;protos/ping&quot;;
+
+// 定义PingPong服务
+service PingPong {
+    // Ping 发送 ping 请求，接收 pong 响应
+    rpc Ping(PingRequest) returns (PongResponse);
+}
+
+// PingRequest 请求结构
+message PingRequest {
+    string value = 1; // value字段为string类型
+}
+
+// PongResponse 响应结构
+message PongResponse {
+    string value = 1; // value字段为string类型
+}
+</code></pre>
+<p>定义了一个名为 <code>PingPong</code> 的 service，包含一个 <code>Ping</code> 方法，同时声明了 <code>PingRequest</code> 和 <code>PongResponse</code> 消息结构用于请求和响应。客户端使用 <code>PingRequest</code> 参数调用 <code>Ping</code> 方法请求服务端，服务端响应 <code>PongResponse</code> 消息，一个基本的服务就定义好了。</p>
+<h2 id="编译-protobuf-文件"><a class="header" href="#编译-protobuf-文件">编译 protobuf 文件</a></h2>
+<pre><code class="language-sh">$ cd src
+$ protoc --go_out=. --go-grpc_out=. ./protos/ping/ping.proto
+</code></pre>
+<p>在src目录执行编译命令，会在目录 <code>src/protos/ping</code> 内生成两个文件 <code>ping.pb.go</code> 和 <code>ping_grpc.pb.go</code>。可以大概看一下这两个文件的内容，<code>ping.pb.go</code> 包含了之前定义的两个message相关的结构，<code>ping_grpc.pb.go</code> 包含了定义的service相关的客户端和服务端接口，<strong>不要修改这两个文件的内容</strong>。</p>
+<h2 id="实现服务端接口"><a class="header" href="#实现服务端接口">实现服务端接口</a></h2>
+<pre><code class="language-go">// src/ping/server.go
+package main
+
+import (
+	&quot;context&quot;
+	&quot;log&quot;
+	&quot;net&quot;
+
+	&quot;google.golang.org/grpc&quot;
+
+	pb &quot;github.com/jergoo/go-grpc-tutorial/protos/ping&quot; // 引入编译生成的包
+)
+
+// PingPongServer 实现 pb.PingPongServer 接口
+type PingPongServer struct {
+	pb.UnimplementedPingPongServer
+}
+
+// Ping 单次请求-响应模式
+func (s *PingPongServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PongResponse, error) {
+	return &amp;pb.PongResponse{Value: &quot;pong&quot;}, nil
+}
+
+// 启动server
+func main() {
+	srv := grpc.NewServer()
+	// 注册 PingPongServer
+	pb.RegisterPingPongServer(srv, &amp;PingPongServer{})
+	lis, err := net.Listen(&quot;tcp&quot;, &quot;:1234&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(&quot;listen on 1234&quot;)
+	srv.Serve(lis)
+}
+</code></pre>
+<p>服务端引入编译生成的包，定义一个 <code>PingPongServer</code> 用于实现约定的接口，接口描述可以查看 <code>ping_grpc.pb.go</code> 文件中的 <code>PingPongServer</code> 接口。实例化 grpc Server 并注册 <code>PingPongServer</code> 开始提供服务。</p>
+<h2 id="客户端调用"><a class="header" href="#客户端调用">客户端调用</a></h2>
+<pre><code class="language-go">// src/ping/client.go
+package main
+
+import (
+	&quot;context&quot;
+	&quot;log&quot;
+
+	&quot;google.golang.org/grpc&quot;
+
+	pb &quot;github.com/jergoo/go-grpc-tutorial/protos/ping&quot; // 引入编译生成的包
+)
+
+// Ping 单次请求-响应模式
+func Ping() {
+	conn, err := grpc.Dial(&quot;localhost:1234&quot;, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	// 实例化客户端并调用
+	client := pb.NewPingPongClient(conn)
+	res, err := client.Ping(context.Background(), &amp;pb.PingRequest{Value: &quot;ping&quot;})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(res.Value)
+}
+</code></pre>
+<p>客户端初始化连接，使用 <code>ping_grpc.pb.go</code> 中的 <code>PingPongClient</code> 实例调用 <code>Ping</code> 方法，即可向服务端发起请求并获取响应，就像调用本地方法一样。</p>
+<hr />
+<blockquote>
+<p>以上就是一个最基础的 gRPC 服务，使用非常简单，底层网络细节全部由 gRPC 处理，开发者只需要关注业务接口设计和实现，基本流程如下：</p>
+<ol>
+<li>编写 protobuf 描述文件，定义消息结构和服务接口</li>
+<li>编译 protobuf 文件，生成服务端和客户端接口代码</li>
+<li>实现 <code>*_grpc.pb.go</code> 文件中描述的服务端接口</li>
+<li>使用 <code>*_grpc.pb.go</code> 文件中的client调用服务</li>
+</ol>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../basic/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../basic/stream.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../basic/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../basic/stream.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../theme/pagetoc.js"></script>
+
+
+    </body>
+</html>

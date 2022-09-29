@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package hello_http;
+option go_package = "hello_http";
+
+import "google/api/annotations.proto";
+
+// 定义Hello服务
+service HelloHTTP {
+    // 定义SayHello方法
+    rpc SayHello(HelloHTTPRequest) returns (HelloHTTPResponse) {
+        // http option
+        option (google.api.http) = {
+            post: "/example/echo"
+            body: "*"
+        };
+    }
+}
+
+// HelloRequest 请求结构
+message HelloHTTPRequest {
+    string name = 1;
+}
+
+// HelloResponse 响应结构
+message HelloHTTPResponse {
+    string message = 1;
+}

@@ -1,0 +1,44 @@
+syntax = "proto3";
+package test;
+
+option go_package="test";
+
+// TestService 测试服务
+service TestService {
+    // Test 测试方法
+	rpc Test(Request) returns (Response) {};
+}
+
+// Request 请求结构
+message Request {
+	string name = 1;
+}
+
+// Response 响应结构
+message Response {
+    string message = 1;
+}
+
+// Test 测试
+message Test {
+    int32 age = 1;
+    int64 count = 2;
+    double money = 3;
+    float score = 4;
+    string name = 5;
+    bool fat = 6;
+    bytes char = 7;
+    // Status 枚举状态
+    enum Status {
+        OK = 0;
+        FAIL = 1;
+    }
+    Status status = 8;
+    // Child 子结构
+    message Child {
+        string sex = 1;
+    }
+    Child child = 9;
+    map<string, string> dict = 10;
+}
+

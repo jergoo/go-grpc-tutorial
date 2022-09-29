@@ -4,6 +4,24 @@
 
 在线阅读：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
 
+老版本中的编译方式已经不再适用，正在重新梳理更新，进度如下：
+
+- [x] 入门
+  - [x] Hello gRPC
+  - [x] gRPC 流
+  - [x] Protobuf
+
+- [ ] 进阶
+  - [ ] 拦截器
+  - [ ] 安全认证
+  - [ ] metadata
+  - [ ] 监控
+
+- [ ] 生态
+  - [ ] gRPC Gateway
+  - [ ] gRPC Middleware
+  - [ ] grpcurl
+
 ---
 
 > 历史版本：SegmentFault **Golang gRPC实践** 系列文章:
