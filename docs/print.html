@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="basic/index.html"><strong aria-hidden="true">1.</strong> 入门</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="basic/hello-grpc.html"><strong aria-hidden="true">1.1.</strong> Hello gRPC</a></li><li class="chapter-item expanded "><a href="basic/stream.html"><strong aria-hidden="true">1.2.</strong> gRPC 流</a></li><li class="chapter-item expanded "><a href="basic/protobuf.html"><strong aria-hidden="true">1.3.</strong> Protobuf</a></li></ol></li><li class="chapter-item expanded "><a href="advance/index.html"><strong aria-hidden="true">2.</strong> 进阶</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advance/interceptor.html"><strong aria-hidden="true">2.1.</strong> 拦截器</a></li><li class="chapter-item expanded "><a href="advance/auth.html"><strong aria-hidden="true">2.2.</strong> 安全认证</a></li><li class="chapter-item expanded "><a href="advance/metadata.html"><strong aria-hidden="true">2.3.</strong> metadata</a></li><li class="chapter-item expanded "><a href="advance/monitor/index.html"><strong aria-hidden="true">2.4.</strong> 监控</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advance/monitor/log.html"><strong aria-hidden="true">2.4.1.</strong> log</a></li><li class="chapter-item expanded "><a href="advance/monitor/metrics.html"><strong aria-hidden="true">2.4.2.</strong> metrics</a></li><li class="chapter-item expanded "><a href="advance/monitor/tracing.html"><strong aria-hidden="true">2.4.3.</strong> tracing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="ecosystem/index.html"><strong aria-hidden="true">3.</strong> 生态</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ecosystem/gateway.html"><strong aria-hidden="true">3.1.</strong> gRPC Gateway</a></li><li class="chapter-item expanded "><a href="ecosystem/middleware.html"><strong aria-hidden="true">3.2.</strong> gRPC Middleware</a></li><li class="chapter-item expanded "><a href="ecosystem/grpcurl.html"><strong aria-hidden="true">3.3.</strong> grpcurl</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="basic/index.html"><strong aria-hidden="true">1.</strong> 入门</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="basic/hello-grpc.html"><strong aria-hidden="true">1.1.</strong> Hello gRPC</a></li><li class="chapter-item expanded "><a href="basic/stream.html"><strong aria-hidden="true">1.2.</strong> gRPC 流</a></li><li class="chapter-item expanded "><a href="basic/protobuf.html"><strong aria-hidden="true">1.3.</strong> Protobuf</a></li></ol></li><li class="chapter-item expanded "><a href="advance/index.html"><strong aria-hidden="true">2.</strong> 进阶</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advance/interceptor.html"><strong aria-hidden="true">2.1.</strong> 拦截器</a></li><li class="chapter-item expanded "><a href="advance/metadata.html"><strong aria-hidden="true">2.2.</strong> metadata</a></li><li class="chapter-item expanded "><a href="advance/auth.html"><strong aria-hidden="true">2.3.</strong> 安全认证</a></li><li class="chapter-item expanded "><a href="advance/monitor/index.html"><strong aria-hidden="true">2.4.</strong> 监控</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advance/monitor/log.html"><strong aria-hidden="true">2.4.1.</strong> log</a></li><li class="chapter-item expanded "><a href="advance/monitor/metrics.html"><strong aria-hidden="true">2.4.2.</strong> metrics</a></li><li class="chapter-item expanded "><a href="advance/monitor/tracing.html"><strong aria-hidden="true">2.4.3.</strong> tracing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="ecosystem/index.html"><strong aria-hidden="true">3.</strong> 生态</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ecosystem/gateway.html"><strong aria-hidden="true">3.1.</strong> gRPC Gateway</a></li><li class="chapter-item expanded "><a href="ecosystem/middleware.html"><strong aria-hidden="true">3.2.</strong> gRPC Middleware</a></li><li class="chapter-item expanded "><a href="ecosystem/grpcurl.html"><strong aria-hidden="true">3.3.</strong> grpcurl</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -1068,6 +1068,115 @@ func (s *customClientStream) RecvMsg(m interface{}) error {
 }
 </code></pre>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="metadata"><a class="header" href="#metadata">metadata</a></h1>
+<hr />
+<p>服务间使用 Http 相互调用时，经常会设置一些业务自定义 header 如时间戳、trace信息等，gRPC使用 HTTP/2 协议自然也是支持的，gRPC 通过 <code>google.golang.org/grpc/metadata</code> 包内的 <code>MD</code> 类型提供相关的功能接口。</p>
+<p><strong>源码目录：</strong></p>
+<pre><code>|—- src/
+	|-- metadata/
+		|—— client.go // 客户端
+		|—— server.go // 服务端
+	|—- protos/ping/
+		|—— ping.proto   // protobuf描述文件
+		|—— ping.pb.go   // protoc编译生成
+    	|-- ping_grpc.pb.go // protoc编译生成
+</code></pre>
+<h2 id="类型定义"><a class="header" href="#类型定义">类型定义</a></h2>
+<pre><code class="language-go">// MD is a mapping from metadata keys to values. Users should use the following
+// two convenience functions New and Pairs to generate MD.
+type MD map[string][]string
+</code></pre>
+<p><code>metadata.MD</code> 类型的定义非常简单，可以像一个普通的 map 一样直接操作，同时 metadata 包里封装了很多工具方法供我们使用。</p>
+<pre><code class="language-go">// 使用 New 方法创建
+md := metadata.New(map[string]string{&quot;k1&quot;:&quot;v1&quot;, &quot;k2&quot;, &quot;v2&quot;})
+
+// 直接使用 make 创建
+md := make(metadata.MD)
+
+// 使用 Pairs 方法创建
+md := metadata.Pairs(&quot;k1&quot;, &quot;v1-1&quot;, &quot;k1&quot;, &quot;v1-2&quot;)
+
+// 一些操作
+md.Set(&quot;key&quot;, &quot;v1&quot;, &quot;v2&quot;)
+md.Append(&quot;key&quot;, &quot;v3&quot;)
+md.Delete(&quot;key&quot;)
+vals := md.Get(&quot;key&quot;)
+
+</code></pre>
+<h2 id="发送与接收"><a class="header" href="#发送与接收">发送与接收</a></h2>
+<h3 id="客户端-2"><a class="header" href="#客户端-2">客户端</a></h3>
+<p>客户端请求的 metadata 是通过设置 context 使用的，metadata 包提供了两个 context 相关的方法，设置好 context 后直接在调用 rpc 方法时传入即可，示例代码如下：</p>
+<pre><code class="language-go">md := metadata.New(map[string]string{&quot;k1&quot;:&quot;v1&quot;, &quot;k2&quot;, &quot;v2&quot;})
+
+// 使用 NewOutgoingContext 初始化一个新的 context
+ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+// 使用 AppendToOutgoingContext 向 context 追加 metadata
+ctx = metadata.AppendToOutgoingContext(ctx, &quot;k3&quot;, &quot;v3&quot;)
+
+</code></pre>
+<p>客户端接收响应中的 metadata 需要区分普通 rpc 和 stream rpc，示例如下：</p>
+<pre><code class="language-go">// 普通 rpc，使用 grpc.Header 方法包装为 CallOption
+var md metadata.MD
+res, err := client.Ping(ctx, &amp;pb.PingRequest{Value: &quot;ping&quot;}, grpc.Header(&amp;md))
+
+// stream rpc
+stream, err := client.MultiPong(context.Background(), &amp;pb.PingRequest{Value: &quot;ping&quot;})
+if err != nil {
+    log.Fatal(err)
+}
+
+// 通过 stream 对象的 Header 方法获取
+md, err := stream.Header()
+if err != nil {
+    log.Fatal(err)
+}
+</code></pre>
+<h3 id="服务端-2"><a class="header" href="#服务端-2">服务端</a></h3>
+<p>对应客户端请求的 metadata 是使用 context 设置的，那么服务端在接收时自然也是从 context 中读取，metadata 包中的 <code>FromIncommingContext</code> 方法就是用来读取 context 中的 metadata数据的，示例如下：</p>
+<pre><code class="language-go">// unary rpc
+func (s *PingPongServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PongResponse, error) {
+	// 读取请求metadata
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		log.Printf(&quot;Got md: %v&quot;, md)
+	}
+
+...
+
+// stream rpc
+func (s *PingPongServer) MultiPingPong(stream pb.PingPong_MultiPingPongServer) error {
+	md, ok := metadata.FromIncomingContext(stream.Context())
+	if ok {
+		log.Printf(&quot;Got md: %v&quot;, md)
+	}
+
+...
+</code></pre>
+<p>服务端设置响应的 metadata 也非常简单，只需要调用封装好的 <code>SetHeader</code> 或 <code>SendHeader</code> 方法即可，示例如下：</p>
+<pre><code class="language-go">// unary rpc
+func (s *PingPongServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PongResponse, error) {
+	// 读取请求metadata
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		log.Printf(&quot;Got md: %v&quot;, md)
+	}
+
+	// SetHeader设置响应 metadata
+	grpc.SetHeader(ctx, metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
+    // 注意 SendHeader 只能调用一次
+    // grpc.SendHeader(ctx, metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
+
+	....
+
+// stream rpc, 调用 stream 的 SetHeader 方法
+func (s *PingPongServer) MultiPong(req *pb.PingRequest, stream pb.PingPong_MultiPongServer) error {
+	stream.SetHeader(metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
+
+    // 注意 SendHeader 只能调用一次
+    // stream.SendHeader(metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
+</code></pre>
+<hr />
 <div style="break-before: page; page-break-before: always;"></div><h1 id="安全认证"><a class="header" href="#安全认证">安全认证</a></h1>
 <hr />
 <p>gRPC默认内置了两种认证方式：</p>
@@ -1425,115 +1534,6 @@ Token info: appid=101010,appkey=i am key
 rpc error: code = 16 desc = Token认证信息无效: appID=101010, appKey=i am not key
 </code></pre>
 <p><code>google.golang.org/grpc/credentials/oauth</code>包已实现了用于Google API的oauth和jwt验证的方法，使用方法可以参考<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-auth-support.md">官方文档</a>。在实际应用中，我们可以根据自己的业务需求实现合适的验证方式。</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="metadata"><a class="header" href="#metadata">metadata</a></h1>
-<hr />
-<p>服务间使用 Http 相互调用时，经常会设置一些业务自定义 header 如时间戳、trace信息等，gRPC使用 HTTP/2 协议自然也是支持的，gRPC 通过 <code>google.golang.org/grpc/metadata</code> 包内的 <code>MD</code> 类型提供相关的功能接口。</p>
-<p><strong>源码目录：</strong></p>
-<pre><code>|—- src/
-	|-- metadata/
-		|—— client.go // 客户端
-		|—— server.go // 服务端
-	|—- protos/ping/
-		|—— ping.proto   // protobuf描述文件
-		|—— ping.pb.go   // protoc编译生成
-    	|-- ping_grpc.pb.go // protoc编译生成
-</code></pre>
-<h2 id="类型定义"><a class="header" href="#类型定义">类型定义</a></h2>
-<pre><code class="language-go">// MD is a mapping from metadata keys to values. Users should use the following
-// two convenience functions New and Pairs to generate MD.
-type MD map[string][]string
-</code></pre>
-<p><code>metadata.MD</code> 类型的定义非常简单，可以像一个普通的 map 一样直接操作，同时 metadata 包里封装了很多工具方法供我们使用。</p>
-<pre><code class="language-go">// 使用 New 方法创建
-md := metadata.New(map[string]string{&quot;k1&quot;:&quot;v1&quot;, &quot;k2&quot;, &quot;v2&quot;})
-
-// 直接使用 make 创建
-md := make(metadata.MD)
-
-// 使用 Pairs 方法创建
-md := metadata.Pairs(&quot;k1&quot;, &quot;v1-1&quot;, &quot;k1&quot;, &quot;v1-2&quot;)
-
-// 一些操作
-md.Set(&quot;key&quot;, &quot;v1&quot;, &quot;v2&quot;)
-md.Append(&quot;key&quot;, &quot;v3&quot;)
-md.Delete(&quot;key&quot;)
-vals := md.Get(&quot;key&quot;)
-
-</code></pre>
-<h2 id="发送与接收"><a class="header" href="#发送与接收">发送与接收</a></h2>
-<h3 id="客户端-2"><a class="header" href="#客户端-2">客户端</a></h3>
-<p>客户端请求的 metadata 是通过设置 context 使用的，metadata 包提供了两个 context 相关的方法，设置好 context 后直接在调用 rpc 方法时传入即可，示例代码如下：</p>
-<pre><code class="language-go">md := metadata.New(map[string]string{&quot;k1&quot;:&quot;v1&quot;, &quot;k2&quot;, &quot;v2&quot;})
-
-// 使用 NewOutgoingContext 初始化一个新的 context
-ctx := metadata.NewOutgoingContext(context.Background(), md)
-
-// 使用 AppendToOutgoingContext 向 context 追加 metadata
-ctx = metadata.AppendToOutgoingContext(ctx, &quot;k3&quot;, &quot;v3&quot;)
-
-</code></pre>
-<p>客户端接收响应中的 metadata 需要区分普通 rpc 和 stream rpc，示例如下：</p>
-<pre><code class="language-go">// 普通 rpc，使用 grpc.Header 方法包装为 CallOption
-var md metadata.MD
-res, err := client.Ping(ctx, &amp;pb.PingRequest{Value: &quot;ping&quot;}, grpc.Header(&amp;md))
-
-// stream rpc
-stream, err := client.MultiPong(context.Background(), &amp;pb.PingRequest{Value: &quot;ping&quot;})
-if err != nil {
-    log.Fatal(err)
-}
-
-// 通过 stream 对象的 Header 方法获取
-md, err := stream.Header()
-if err != nil {
-    log.Fatal(err)
-}
-</code></pre>
-<h3 id="服务端-2"><a class="header" href="#服务端-2">服务端</a></h3>
-<p>对应客户端请求的 metadata 是使用 context 设置的，那么服务端在接收时自然也是从 context 中读取，metadata 包中的 <code>FromIncommingContext</code> 方法就是用来读取 context 中的 metadata数据的，示例如下：</p>
-<pre><code class="language-go">// unary rpc
-func (s *PingPongServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PongResponse, error) {
-	// 读取请求metadata
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		log.Printf(&quot;Got md: %v&quot;, md)
-	}
-
-...
-
-// stream rpc
-func (s *PingPongServer) MultiPingPong(stream pb.PingPong_MultiPingPongServer) error {
-	md, ok := metadata.FromIncomingContext(stream.Context())
-	if ok {
-		log.Printf(&quot;Got md: %v&quot;, md)
-	}
-
-...
-</code></pre>
-<p>服务端设置响应的 metadata 也非常简单，只需要调用封装好的 <code>SetHeader</code> 或 <code>SendHeader</code> 方法即可，示例如下：</p>
-<pre><code class="language-go">// unary rpc
-func (s *PingPongServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PongResponse, error) {
-	// 读取请求metadata
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		log.Printf(&quot;Got md: %v&quot;, md)
-	}
-
-	// SetHeader设置响应 metadata
-	grpc.SetHeader(ctx, metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
-    // 注意 SendHeader 只能调用一次
-    // grpc.SendHeader(ctx, metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
-
-	....
-
-// stream rpc, 调用 stream 的 SetHeader 方法
-func (s *PingPongServer) MultiPong(req *pb.PingRequest, stream pb.PingPong_MultiPongServer) error {
-	stream.SetHeader(metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
-
-    // 注意 SendHeader 只能调用一次
-    // stream.SendHeader(metadata.New(map[string]string{&quot;rkey&quot;: &quot;rval&quot;}))
-</code></pre>
-<hr />
 <div style="break-before: page; page-break-before: always;"></div><h1 id="监控"><a class="header" href="#监控">监控</a></h1>
 <hr />
 <div style="break-before: page; page-break-before: always;"></div><h1 id="log"><a class="header" href="#log">log</a></h1>

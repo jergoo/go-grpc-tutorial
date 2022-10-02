@@ -11,8 +11,8 @@
 
 - [进阶](./advance/index.md)
   - [拦截器](./advance/interceptor.md)
-  - [安全认证](./advance/auth.md)
   - [metadata](./advance/metadata.md)
+  - [安全认证](./advance/auth.md)
   - [监控](./advance/monitor/index.md)
     - [log](./advance/monitor/log.md)
     - [metrics](./advance/monitor/metrics.md)
