@@ -4,7 +4,7 @@ authors = ["jergoo"]
 description = "Go gRPC Tutorial"
 language = "zh"
 multilingual = false
-src = "book"
+src = "src/docs"
 
 [build]
 build-dir = "docs"
