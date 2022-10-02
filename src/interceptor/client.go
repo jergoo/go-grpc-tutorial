@@ -14,7 +14,7 @@ import (
 // Ping 单次请求-响应模式
 func Ping() {
 	// 以option方式添加拦截器
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientLogInterceptor))
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientUnaryInterceptor))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,7 +92,11 @@ func MultiPing() {
 
 // MultiPingPong 双向流模式
 func MultiPingPong() {
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithStreamInterceptor(clientStreamInterceptor),
+	}
+	conn, err := grpc.Dial("localhost:1234", opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,7 +126,7 @@ func MultiPingPong() {
 	}(stream, c)
 
 	// 发送数据
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 2; i++ {
 		data := &pb.PingRequest{Value: "ping"}
 		err = stream.Send(data)
 		if err != nil {
@@ -141,15 +145,47 @@ func MultiPingPong() {
 // type UnaryClientInterceptor func(ctx context.Context, method string, req, reply interface{}, cc *ClientConn, invoker UnaryInvoker, opts ...CallOption) error
 
 // 客户端拦截器 - 记录请求和响应日志
-func clientLogInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+func clientUnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	// 前置逻辑
-	log.Printf("[Client] send request: %s", method)
+	log.Printf("[Client Interceptor] send request: %s", method)
 
 	// 发起请求
 	err := invoker(ctx, method, req, reply, cc, opts...)
 
 	// 后置逻辑
-	log.Printf("[Client] response: %s", reply)
+	log.Printf("[Client Interceptor] response: %s", reply)
 
 	return err
+}
+
+// type StreamClientInterceptor func(ctx context.Context, desc *StreamDesc, cc *ClientConn, method string, streamer Streamer, opts ...CallOption) (ClientStream, error)
+
+// 客户端拦截器 - 记录stream请求和响应日志
+func clientStreamInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	// 前置逻辑
+	log.Printf("[Client Stream Interceptor] send request: %s", method)
+
+	// 请求
+	s, err := streamer(ctx, desc, cc, method, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	// 自定义类型包装 ClientStream
+	return &customClientStream{s}, nil
+}
+
+type customClientStream struct {
+	grpc.ClientStream
+}
+
+func (s *customClientStream) SendMsg(m interface{}) error {
+	log.Printf("[Client Stream Interceptor] send: %T", m)
+	return s.ClientStream.SendMsg(m)
+}
+
+func (s *customClientStream) RecvMsg(m interface{}) error {
+	time.Sleep(1000 * time.Millisecond)
+	log.Printf("[Client Stream Interceptor] recv: %T", m)
+	return s.ClientStream.RecvMsg(m)
 }

@@ -846,6 +846,7 @@ type ExampleServiceServer interface {
 	mustEmbedUnimplementedExampleServiceServer()
 }
 </code></pre>
+<hr />
 <h2 id="参考文档"><a class="header" href="#参考文档">参考文档</a></h2>
 <ul>
 <li><a href="https://developers.google.com/protocol-buffers/docs/proto3">Language Guide(proto3)</a></li>
@@ -877,22 +878,22 @@ type ExampleServiceServer interface {
 ...
 
 // 服务端拦截器 - 记录请求和响应日志
-func serverLogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func serverUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	// 前置逻辑
-	log.Printf(&quot;[Server] accept request: %s&quot;, info.FullMethod)
+	log.Printf(&quot;[Server Interceptor] accept request: %s&quot;, info.FullMethod)
 
 	// 处理请求
 	response, err := handler(ctx, req)
 
 	// 后置逻辑
-	log.Printf(&quot;[Server] response: %s&quot;, response)
+	log.Printf(&quot;[Server Interceptor] response: %s&quot;, response)
 
 	return response, err
 }
 
 func main() {
 	// 以option的方式添加拦截器
-	srv := grpc.NewServer(grpc.UnaryInterceptor(serverLogInterceptor))
+	srv := grpc.NewServer(grpc.UnaryInterceptor(serverUnaryInterceptor))
 
 ...
 
@@ -903,15 +904,15 @@ func main() {
 ...
 
 // 客户端拦截器 - 记录请求和响应日志
-func clientLogInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+func clientUnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	// 前置逻辑
-	log.Printf(&quot;[Client] send request: %s&quot;, method)
+	log.Printf(&quot;[Client Interceptor] send request: %s&quot;, method)
 
 	// 发起请求
 	err := invoker(ctx, method, req, reply, cc, opts...)
 
 	// 后置逻辑
-	log.Printf(&quot;[Client] response: %s&quot;, reply)
+	log.Printf(&quot;[Client Interceptor] response: %s&quot;, reply)
 
 	return err
 }
@@ -920,7 +921,7 @@ func clientLogInterceptor(ctx context.Context, method string, req, reply interfa
 
 func Ping() {
 	// 以option方式添加拦截器
-	conn, err := grpc.Dial(&quot;localhost:1234&quot;, grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientLogInterceptor))
+	conn, err := grpc.Dial(&quot;localhost:1234&quot;, grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientUnaryInterceptor))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -928,21 +929,145 @@ func Ping() {
 ...
 
 </code></pre>
-<p>这里分别定义了 <code>serverLogInterceptor</code> 和 <code>clientLogInterceptor</code> 拦截器, 函数的签名定义在 <code>google.golang.org/grpc</code> 包中，分别为 <code>UnaryServerInterceptor</code> 和 <code>UnaryClientInterceptor</code>, 在前置逻辑位置可以对请求信息做处理，在后置逻辑位置可以对响应信息做处理。在初始化服务端和客户端连接时以option的形式配置就好了，同时也支持配置多个拦截器。</p>
+<p>这里分别定义了 <code>serverUnaryInterceptor</code> 和 <code>clientUnaryInterceptor</code> 拦截器，函数的签名定义在 <code>google.golang.org/grpc</code> 包中，分别为 <code>UnaryServerInterceptor</code> 和 <code>UnaryClientInterceptor</code>, 在前置逻辑位置可以对请求信息做处理，在后置逻辑位置可以对响应信息做处理。在初始化服务端和客户端连接时以option的形式配置就好了，同时也支持配置多个拦截器。</p>
 <blockquote>
 <p>运行结果：</p>
 <pre><code class="language-sh">// server
-2022/09/27 00:00:00 [Server] accept request: /protos.PingPong/Ping
-2022/09/27 00:00:00 [Server] response: value:&quot;pong&quot;
+2022/09/27 00:00:00 [Server Interceptor] accept request: /protos.PingPong/Ping
+2022/09/27 00:00:00 [Server Interceptor] response: value:&quot;pong&quot;
 
 // client
-2022/09/27 00:00:00 [Client] send request: /protos.PingPong/Ping
-2022/09/27 00:00:00 [Client] response: value:&quot;pong&quot;
+2022/09/27 00:00:00 [Client Interceptor] send request: /protos.PingPong/Ping
+2022/09/27 00:00:00 [Client Interceptor] response: value:&quot;pong&quot;
 </code></pre>
 </blockquote>
 <h2 id="流拦截器"><a class="header" href="#流拦截器">流拦截器</a></h2>
+<p>同样实现一个打印请求和响应日志的拦截器，只是函数签名变成了 <code>grpc.StreamServerInterceptor</code> 和 <code>grpc.StreamClientInterceptor</code>。</p>
 <h3 id="服务端-1"><a class="header" href="#服务端-1">服务端</a></h3>
+<pre><code class="language-go">// src/interceptor/server.go
+
+...
+
+// 服务端拦截器 - 记录stream请求和响应日志
+func serverStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	// 前置逻辑
+	log.Printf(&quot;[Server Stream Interceptor] accept request: %s&quot;, info.FullMethod)
+
+	// 处理请求
+	err := handler(srv, ss)
+	return err
+}
+
+...
+
+func main() {
+	// 以option的方式添加拦截器
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(serverUnaryInterceptor),
+		grpc.StreamInterceptor(serverStreamInterceptor),
+	}
+	srv := grpc.NewServer(opts...)
+
+...
+
+</code></pre>
+<p>以上实现其实和普通拦截器的使用方式没太大区别，但是流的特性在于请求和响应不是一次性处理完成的，而是多次发送和接收数据，所以我们可能需要在发送和接收数据的过程中处理一些公共逻辑，这才是流拦截器特别的地方。我们注意到 <code>handler</code> 方法调用的第二个参数是一个 <code>grpc.ServerStream</code> 接口类型，这个接口类型包含了 <code>SendMsg</code> 和 <code>RecvMsg</code> 方法，所以我们可以使用一个自定义类型实现这个接口，对原对象进行包装重写这两个方法，这样就能达到我们的目的了。</p>
+<pre><code class="language-go">// 服务端拦截器 - 记录stream请求和响应日志
+func serverStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	// 前置逻辑
+	log.Printf(&quot;[Server Stream Interceptor] accept request: %s&quot;, info.FullMethod)
+
+	// 处理请求，使用自定义类型包装 ServerStream
+	err := handler(srv, &amp;customServerStream{ss})
+	return err
+}
+
+type customServerStream struct {
+	grpc.ServerStream
+}
+
+func (s *customServerStream) SendMsg(m interface{}) error {
+	log.Printf(&quot;[Server Stream Interceptor] send: %T&quot;, m)
+	return s.ServerStream.SendMsg(m)
+}
+
+func (s *customServerStream) RecvMsg(m interface{}) error {
+	log.Printf(&quot;[Server Stream Interceptor] recv: %T&quot;, m)
+	return s.ServerStream.RecvMsg(m)
+}
+</code></pre>
 <h3 id="客户端-1"><a class="header" href="#客户端-1">客户端</a></h3>
+<p>客户端的使用方式和服务端类似，只是对应的数据处理接口类型变成了 <code>grpc.ClientStream</code>。</p>
+<pre><code class="language-go">// src/interceptor/client.go
+
+···
+
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithStreamInterceptor(clientStreamInterceptor),
+	}
+	conn, err := grpc.Dial(&quot;localhost:1234&quot;, opts...)
+
+···
+
+func clientStreamInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	// 前置逻辑
+	log.Printf(&quot;[Client Stream Interceptor] send request: %s&quot;, method)
+
+	// 请求
+	s, err := streamer(ctx, desc, cc, method, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	// 自定义类型包装 ClientStream
+	return &amp;customClientStream{s}, nil
+}
+
+type customClientStream struct {
+	grpc.ClientStream
+}
+
+func (s *customClientStream) SendMsg(m interface{}) error {
+	log.Printf(&quot;[Client Stream Interceptor] send: %T&quot;, m)
+	return s.ClientStream.SendMsg(m)
+}
+
+func (s *customClientStream) RecvMsg(m interface{}) error {
+	log.Printf(&quot;[Client Stream Interceptor] recv: %T&quot;, m)
+	return s.ClientStream.RecvMsg(m)
+}
+</code></pre>
+<blockquote>
+<p>运行结果，以 MultiPingPong 方法为例，最后一次输出的recv是结束消息，err == io.EOF</p>
+<pre><code class="language-sh">// server
+2022/10/02 10:53:11 [Server Stream Interceptor] accept request: /protos.PingPong/MultiPingPong
+2022/10/02 10:53:11 [Server Stream Interceptor] recv: *ping.PingRequest
+2022/10/02 10:53:11 [Server Stream Interceptor] recv: *ping.PingRequest
+2022/10/02 10:53:11 [Server Stream Interceptor] send: *ping.PongResponse
+2022/10/02 10:53:11 [Server Stream Interceptor] recv: *ping.PingRequest
+
+// client
+2022/10/02 10:53:11 [Client Stream Interceptor] send request: /protos.PingPong/MultiPingPong
+2022/10/02 10:53:11 [Client Stream Interceptor] send: *ping.PingRequest
+2022/10/02 10:53:11 send:ping
+2022/10/02 10:53:11 [Client Stream Interceptor] send: *ping.PingRequest
+2022/10/02 10:53:11 send:ping
+2022/10/02 10:53:12 [Client Stream Interceptor] recv: *ping.PongResponse
+2022/10/02 10:53:12 recv:pong
+2022/10/02 10:53:13 [Client Stream Interceptor] recv: *ping.PongResponse
+</code></pre>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>注意</strong>：在自定义的 <code>RecvMsg</code> 方法中，前置位置只能读取消息的类型，无法读取实际数据，因为这个时候接收到的消息还没有解析处理，如果要获取接收消息的实际数据，需要把自定义的处理逻辑放在后置位置，例如：</p>
+<pre><code class="language-go">func (s *customClientStream) RecvMsg(m interface{}) error {
+  err := s.ClientStream.RecvMsg(m)
+  log.Printf(&quot;[Client Stream Interceptor] recv: %v&quot;, m)
+  return err
+}
+</code></pre>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="安全认证"><a class="header" href="#安全认证">安全认证</a></h1>
 <hr />
 <p>gRPC默认内置了两种认证方式：</p>

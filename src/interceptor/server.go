@@ -84,23 +84,53 @@ func (s *PingPongServer) MultiPingPong(stream pb.PingPong_MultiPingPongServer) e
 // type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
 
 // 服务端拦截器 - 记录请求和响应日志
-func serverLogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func serverUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	// 前置逻辑
-	log.Printf("[Server] accept request: %s", info.FullMethod)
+	log.Printf("[Server Interceptor] accept request: %s", info.FullMethod)
 
 	// 处理请求
 	response, err := handler(ctx, req)
 
 	// 后置逻辑
-	log.Printf("[Server] response: %s", response)
+	log.Printf("[Server Interceptor] response: %s", response)
 
 	return response, err
+}
+
+// type StreamServerInterceptor func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
+
+// 服务端拦截器 - 记录stream请求和响应日志
+func serverStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	// 前置逻辑
+	log.Printf("[Server Stream Interceptor] accept request: %s", info.FullMethod)
+
+	// 处理请求，使用自定义 ServerStream
+	err := handler(srv, &customServerStream{ss})
+	return err
+}
+
+type customServerStream struct {
+	grpc.ServerStream
+}
+
+func (s *customServerStream) SendMsg(m interface{}) error {
+	log.Printf("[Server Stream Interceptor] send: %T", m)
+	return s.ServerStream.SendMsg(m)
+}
+
+func (s *customServerStream) RecvMsg(m interface{}) error {
+	log.Printf("[Server Stream Interceptor] recv: %T", m)
+	return s.ServerStream.RecvMsg(m)
 }
 
 // 启动server
 func main() {
 	// 以option的方式添加拦截器
-	srv := grpc.NewServer(grpc.UnaryInterceptor(serverLogInterceptor))
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(serverUnaryInterceptor),
+		grpc.StreamInterceptor(serverStreamInterceptor),
+	}
+	srv := grpc.NewServer(opts...)
 
 	// 注册 PingPongServer
 	pb.RegisterPingPongServer(srv, &PingPongServer{})
