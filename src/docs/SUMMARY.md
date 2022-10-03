@@ -13,10 +13,6 @@
   - [拦截器](./advance/interceptor.md)
   - [metadata](./advance/metadata.md)
   - [安全认证](./advance/auth.md)
-  - [监控](./advance/monitor/index.md)
-    - [log](./advance/monitor/log.md)
-    - [metrics](./advance/monitor/metrics.md)
-    - [tracing](./advance/monitor/tracing.md)
 
 - [生态](./ecosystem/index.md)
   - [gRPC Gateway](./ecosystem/gateway.md)

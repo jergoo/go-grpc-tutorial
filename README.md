@@ -1,10 +1,8 @@
 # Go gRPC Tutorial
 
-本项目旨在提供一个简明的 go gRPC 使用指南，帮助新手快速学会使用 gRPC，而非深究其底层原理，内容包含 gRPC 最常使用的功能特性，以及 gRPC 生态中的常用工具。
+一份简明的 go gRPC 使用指南，用于快速学会使用 gRPC，而非深究其底层原理，内容包含 gRPC 最常使用的功能特性，以及 gRPC 生态中的常用工具。
 
 在线阅读：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
-
-老版本中的编译方式已经不再适用，正在重新梳理更新，老版本文档和源码已放到archive目录。
 
 更新进度：
 
@@ -13,11 +11,10 @@
   - [x] gRPC 流
   - [x] Protobuf
 
-- [ ] 进阶
+- [x] 进阶
   - [x] 拦截器
   - [x] metadata
-  - [ ] 安全认证
-  - [ ] 监控
+  - [x] 安全认证
 
 - [ ] 生态
   - [ ] gRPC Gateway

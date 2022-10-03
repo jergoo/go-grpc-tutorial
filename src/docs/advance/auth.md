@@ -2,415 +2,178 @@
 
 ---
 
-gRPC默认内置了两种认证方式：
+服务开发中需要考虑服务的安全性，如连接是否加密，用户请求是否有权限等，gRPC 支持基于 TLS 的认证保证连接的安全性，通知也支持基于 token 的认证方式，用于对用户做权限认证。
 
-* SSL/TLS认证方式
+**源码目录：**
 
-* 基于Token的认证方式
+```
+|—- src/
+	|-- auth/
+		|-- keys/     // 证书目录
+		|—— client.go // 客户端
+		|—— server.go // 服务端
+	|—- protos/ping/
+		|—— ping.proto   // protobuf描述文件
+		|—— ping.pb.go   // protoc编译生成
+    	|-- ping_grpc.pb.go // protoc编译生成
+```
 
-同时，gRPC提供了接口用于扩展自定义认证方式
 
+## TLS认证
 
-## TLS认证示例
-
-这里直接扩展hello项目，实现TLS认证机制
-
-首先需要准备证书，在hello目录新建keys目录用于存放证书文件。
-
-
-### 证书制作
-
-#### 制作私钥 (.key)
+首先需要准备服务端证书，在 keys 目录存放证书文件。
 
 ```sh
-# Key considerations for algorithm "RSA" ≥ 2048-bit
-$ openssl genrsa -out server.key 2048
-    
-# Key considerations for algorithm "ECDSA" ≥ secp384r1
-# List ECDSA the supported curves (openssl ecparam -list_curves)
-$ openssl ecparam -genkey -name secp384r1 -out server.key
+$ cd src/auth/keys
+# 生成证书，-config 替换为对应系统的openssl配置文件目录
+$ openssl req -newkey rsa:2048 -x509 -nodes -sha256 -days 3650 \
+    -keyout server.key -new -out server.crt \
+    -subj /CN=grpc.server -reqexts SAN -extensions SAN \
+    -config <(cat /System/Library/OpenSSL/openssl.cnf \
+        <(printf '[SAN]\nsubjectAltName=DNS:grpc.server'))
 ```
 
+生成证书文件后，我们就可以在服务端通过 `ServerOption` 开启 TLS 了，示例如下：
 
-#### 自签名公钥(x509) (PEM-encodings `.pem`|`.crt`) 
-
-```sh
-$ openssl req -new -x509 -sha256 -key server.key -out server.pem -days 3650
-```
-
-
-#### 自定义信息
-
-```sh
------
-Country Name (2 letter code) [AU]:CN
-State or Province Name (full name) [Some-State]:XxXx
-Locality Name (eg, city) []:XxXx
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:XX Co. Ltd
-Organizational Unit Name (eg, section) []:Dev
-Common Name (e.g. server FQDN or YOUR name) []:server name
-Email Address []:xxx@xxx.com
-```
-
-
-### 目录结构
-
-```
-|—— hello-tls/
-	|—— client/
-    	|—— main.go   // 客户端
-	|—— server/
-    	|—— main.go   // 服务端
-|—— keys/				 // 证书目录
-	|—— server.key
-	|—— server.pem
-|—— proto/
-	|—— hello/
-		|—— hello.proto   // proto描述文件
-		|—— hello.pb.go   // proto编译后文件
-```
-
-
-### 示例代码
-
-`proto/helloworld.proto`及`proto/hello.pb.go`文件不需要改动
-
-修改服务端代码：server/main.go
-
-```golang
-package main
-
-import (
-	"fmt"
-	"net"
-
-	pb "github.com/jergoo/go-grpc-tutorial/proto/hello"
-
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials" // 引入grpc认证包
-	"google.golang.org/grpc/grpclog"
-)
-
-const (
-	// Address gRPC服务地址
-	Address = "127.0.0.1:50052"
-)
-
-// 定义helloService并实现约定的接口
-type helloService struct{}
-
-// HelloService Hello服务
-var HelloService = helloService{}
-
-// SayHello 实现Hello服务接口
-func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
-	resp := new(pb.HelloResponse)
-	resp.Message = fmt.Sprintf("Hello %s.", in.Name)
-
-	return resp, nil
-}
+```go
+// src/auth/server.go
 
 func main() {
-	listen, err := net.Listen("tcp", Address)
+	creds, err := credentials.NewServerTLSFromFile("keys/server.crt", "keys/server.key")
 	if err != nil {
-		grpclog.Fatalf("Failed to listen: %v", err)
+		log.Fatalf("load crt fail:%v", err)
+	}
+	opts := []grpc.ServerOption{
+		grpc.Creds(creds),
 	}
 
-	// TLS认证
-	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
-	if err != nil {
-		grpclog.Fatalf("Failed to generate credentials %v", err)
-	}
+	srv := grpc.NewServer(opts...)
 
-	// 实例化grpc Server, 并开启TLS认证
-	s := grpc.NewServer(grpc.Creds(creds))
-
-	// 注册HelloService
-	pb.RegisterHelloServer(s, HelloService)
-
-	grpclog.Println("Listen on " + Address + " with TLS")
-
-	s.Serve(listen)
-}
+...
 ```
-运行：
 
-```sh
-$ go run main.go
-
-Listen on 127.0.0.1:50052 with TLS
-```
-服务端在实例化grpc Server时，可配置多种选项，TLS认证是其中之一
-
-
-客户端添加TLS认证：client/main.go
+类似的，在客户端使用 `DialOption` 开启 TLS，示例如下：
 
 ```golang
-package main
-
-import (
-	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
-
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials" // 引入grpc认证包
-	"google.golang.org/grpc/grpclog"
-)
-
-const (
-	// Address gRPC服务地址
-	Address = "127.0.0.1:50052"
-)
-
-func main() {
-	// TLS连接
-	creds, err := credentials.NewClientTLSFromFile("../../keys/server.pem", "server name")
+func Ping() {
+	// 读取服务端证书，并制定对应服务名
+	cred, err := credentials.NewClientTLSFromFile("keys/server.crt", "go-grpc-tutorial")
 	if err != nil {
-		grpclog.Fatalf("Failed to create TLS credentials %v", err)
+		log.Fatalf("load crt fail: %v", err)
 	}
 
-	conn, err := grpc.Dial(Address, grpc.WithTransportCredentials(creds))
+	// 连接配置
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(cred),
+	}
+	conn, err := grpc.Dial("localhost:1234", opts...)
 	if err != nil {
-		grpclog.Fatalln(err)
+		log.Fatal(err)
+	}
+
+	...
+```
+
+## Token 认证
+
+TLS 认证是针对连接的安全加密方式，实际应用中还需要针对每个用户请求进行认证，常用的方式就是基于 token 认证，gRPC 使用 `grpc.PerRPCCredentials` 接口对此提供了支持。
+
+```go
+// PerRPCCredentials defines the common interface for the credentials which need to
+// attach security information to every RPC (e.g., oauth2).
+type PerRPCCredentials interface {
+	// GetRequestMetadata gets the current request metadata, refreshing
+	// tokens if required. This should be called by the transport layer on
+	// each request, and the data should be populated in headers or other
+	// context. If a status code is returned, it will be used as the status
+	// for the RPC. uri is the URI of the entry point for the request.
+	// When supported by the underlying implementation, ctx can be used for
+	// timeout and cancellation. Additionally, RequestInfo data will be
+	// available via ctx to this call.
+	// TODO(zhaoq): Define the set of the qualified keys instead of leaving
+	// it as an arbitrary string.
+	GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error)
+	// RequireTransportSecurity indicates whether the credentials requires
+	// transport security.
+	RequireTransportSecurity() bool
+}
+
+```
+
+客户端示例如下：
+
+```go
+// src/auth/client.go
+
+func Ping() {
+	// 增加认证 Dial Option
+	conn, err := grpc.Dial("localhost:1234", grpc.WithPerRPCCredentials(CustomAuth{Token: "1234567890"}))
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer conn.Close()
 
-	// 初始化客户端
-	c := pb.NewHelloClient(conn)
-
-	// 调用方法
-	req := &pb.HelloRequest{Name: "gRPC"}
-	res, err := c.SayHello(context.Background(), req)
+	// 实例化客户端并调用
+	client := pb.NewPingPongClient(conn)
+	res, err := client.Ping(context.Background(), &pb.PingRequest{Value: "ping"})
 	if err != nil {
-		grpclog.Fatalln(err)
+		log.Fatal(err)
 	}
-
-	grpclog.Println(res.Message)
+	log.Println(res.Value)
 }
-```
 
-运行：
+// CustomAuth 自定义认证类型
+type CustomAuth struct {
+	Token string
+}
 
-```sh
-$ go run main.go
-
-Hello gRPC
-```
-客户端添加TLS认证的方式和服务端类似，在创建连接`Dial`时，同样可以配置多种选项，后面的示例中会看到更多的选项。
-
-
-## Token认证示例
-
-再进一步，继续扩展hello-tls项目，实现TLS + Token认证机制
-
-
-### 目录结构
-
-```
-|—— hello_token/
-	|—— client/
-    	|—— main.go   // 客户端
-	|—— server/
-    	|—— main.go   // 服务端
-|—— keys/             // 证书目录
-	|—— server.key
-	|—— server.pem
-|—— proto/
-	|—— hello/
-		|—— hello.proto   // proto描述文件
-		|—— hello.pb.go   // proto编译后文件
-```
-
-
-### 示例代码
-
-先修改客户端实现：client/main.go
-
-```golang
-package main
-
-import (
-	pb "github.com/jergoo/go-grpc-tutorial/proto/hello" // 引入proto包
-
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials" // 引入grpc认证包
-	"google.golang.org/grpc/grpclog"
-)
-
-const (
-	// Address gRPC服务地址
-	Address = "127.0.0.1:50052"
-
-	// OpenTLS 是否开启TLS认证
-	OpenTLS = true
-)
-
-// customCredential 自定义认证
-type customCredential struct{}
-
-// GetRequestMetadata 实现自定义认证接口
-func (c customCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+// GetRequestMetadata 生成认证信息
+func (a CustomAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
 	return map[string]string{
-		"appid":  "101010",
-		"appkey": "i am key",
+		"authorization": a.Token,
 	}, nil
 }
 
-// RequireTransportSecurity 自定义认证是否开启TLS
-func (c customCredential) RequireTransportSecurity() bool {
-	return OpenTLS
-}
-
-func main() {
-	var err error
-	var opts []grpc.DialOption
-
-	if OpenTLS {
-		// TLS连接
-		creds, err := credentials.NewClientTLSFromFile("../../keys/server.pem", "server name")
-		if err != nil {
-			grpclog.Fatalf("Failed to create TLS credentials %v", err)
-		}
-		opts = append(opts, grpc.WithTransportCredentials(creds))
-	} else {
-		opts = append(opts, grpc.WithInsecure())
-	}
-
-	// 使用自定义认证
-	opts = append(opts, grpc.WithPerRPCCredentials(new(customCredential)))
-
-	conn, err := grpc.Dial(Address, opts...)
-
-	if err != nil {
-		grpclog.Fatalln(err)
-	}
-
-	defer conn.Close()
-
-	// 初始化客户端
-	c := pb.NewHelloClient(conn)
-
-	// 调用方法
-	req := &pb.HelloRequest{Name: "gRPC"}
-	res, err := c.SayHello(context.Background(), req)
-	if err != nil {
-		grpclog.Fatalln(err)
-	}
-
-	grpclog.Println(res.Message)
+// RequireTransportSecurity 是否开启 TLS
+func (a CustomAuth) RequireTransportSecurity() bool {
+	return false
 }
 ```
-这里我们定义了一个`customCredential`结构，并实现了两个方法`GetRequestMetadata`和`RequireTransportSecurity`。这是gRPC提供的自定义认证方式，每次RPC调用都会传输认证信息。`customCredential`其实是实现了`grpc/credential`包内的`PerRPCCredentials`接口。每次调用，token信息会通过请求的metadata传输到服务端。下面具体看一下服务端如何获取metadata中的信息。
 
+这里定义了一个 `CustomAuth` 类型，并实现了 `grpc.PerRPCCredentials` 接口的两个方法，通过 `grpc.WithPerRPCCredentials` 方法转换为 `DialOption` 类型初始化连接，这样每次 rpc 调用时 token 信息会通过请求的metadata 传输到服务端。
 
-修改server/main.go中的SayHello方法：
+既然是通过 metadata 传输 token 信息，那么服务端认证就非常简单了，可以实现一个拦截器统一处理请求中的 token，示例如下：
 
 ```golang
-package main
+// src/auth/server.go
+...
 
-import (
-	"fmt"
-	"net"
-
-	pb "github.com/jergoo/go-grpc-tutorial/proto/hello"
-
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials" // 引入grpc认证包
-	"google.golang.org/grpc/grpclog"
-	"google.golang.org/grpc/metadata" // 引入grpc meta包
-)
-
-const (
-	// Address gRPC服务地址
-	Address = "127.0.0.1:50052"
-)
-
-// 定义helloService并实现约定的接口
-type helloService struct{}
-
-// HelloService ...
-var HelloService = helloService{}
-
-// SayHello 实现Hello服务接口
-func (h helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
-	// 解析metada中的信息并验证
-	md, ok := metadata.FromContext(ctx)
+// 服务端拦截器 - token 认证
+func authInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, grpc.Errorf(codes.Unauthenticated, "无Token认证信息")
+		return nil, errors.New("authorization missing")
 	}
 
-	var (
-		appid  string
-		appkey string
-	)
-
-	if val, ok := md["appid"]; ok {
-		appid = val[0]
+	var token string
+	if auth, ok := md["authorization"]; ok {
+		token = auth[0]
+	}
+	if token != "1234567890" {
+		return nil, grpc.Errorf(codes.Unauthenticated, "token invalid")
 	}
 
-	if val, ok := md["appkey"]; ok {
-		appkey = val[0]
-	}
-
-	if appid != "101010" || appkey != "i am key" {
-		return nil, grpc.Errorf(codes.Unauthenticated, "Token认证信息无效: appid=%s, appkey=%s", appid, appkey)
-	}
-
-	resp := new(pb.HelloResponse)
-	resp.Message = fmt.Sprintf("Hello %s.\nToken info: appid=%s,appkey=%s", in.Name, appid, appkey)
-
-	return resp, nil
+	// 处理请求
+	return handler(ctx, req)
 }
 
+// 启动server
 func main() {
-	listen, err := net.Listen("tcp", Address)
-	if err != nil {
-		grpclog.Fatalf("failed to listen: %v", err)
-	}
+	srv := grpc.NewServer(grpc.UnaryInterceptor(authInterceptor))
 
-	// TLS认证
-	creds, err := credentials.NewServerTLSFromFile("../../keys/server.pem", "../../keys/server.key")
-	if err != nil {
-		grpclog.Fatalf("Failed to generate credentials %v", err)
-	}
-
-	// 实例化grpc Server, 并开启TLS认证
-	s := grpc.NewServer(grpc.Creds(creds))
-
-	// 注册HelloService
-	pb.RegisterHelloServer(s, HelloService)
-
-	grpclog.Println("Listen on " + Address + " with TLS + Token")
-
-	s.Serve(listen)
-}
+...
 ```
 
-服务端可以从`context`中获取每次请求的metadata，从中读取客户端发送的token信息并验证有效性。
+以上就是基于 token 的认证方法，还是比较简单的，实际应用中可以根据自己的业务需求生成不同类型的 token，`google.golang.org/grpc/credentials/oauth`包也对 oauth2 和 jwt 提供了支持，感兴趣可以看一下 `oauth.NewOauthAccess(token *oauth2.Token)` 和 `oauth.NewJWTAccessFromKey(jsonKey []byte)` 方法，实际上也是实现了 `grpc.PerRPCCredentials` 接口。
 
-运行：
-
-```sh
-$ go run main.go
-
-Listen on 50052 with TLS + Token
-```
-
-运行客户端程序 client/main.go：
-
-```
-$ go run main.go
-
-// 认证成功结果
-Hello gRPC
-Token info: appid=101010,appkey=i am key
-
-// 修改key验证认证失败结果：
-rpc error: code = 16 desc = Token认证信息无效: appID=101010, appKey=i am not key
-```
-
-`google.golang.org/grpc/credentials/oauth`包已实现了用于Google API的oauth和jwt验证的方法，使用方法可以参考[官方文档](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-auth-support.md)。在实际应用中，我们可以根据自己的业务需求实现合适的验证方式。
+---
