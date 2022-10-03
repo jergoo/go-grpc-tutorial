@@ -1,6 +1,6 @@
 # Go gRPC Tutorial
 
-一份简明的 go gRPC 使用指南，用于快速学会使用 gRPC，而非深究其底层原理，内容包含 gRPC 最常使用的功能特性，以及 gRPC 生态中的常用工具。
+一份简明的 go gRPC 使用指南，包含 gRPC 常用的功能特性，以及 gRPC 生态中的常用工具。
 
 在线阅读：[Go gRPC Tutorial](https://jergoo.github.io/go-grpc-tutorial/)
 
