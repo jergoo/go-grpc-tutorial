@@ -16,7 +16,7 @@ service ExampleService {
 
 // Request 请求结构
 message Request {
-	string value = 1;
+	optional string value = 1;
 }
 
 // Response 响应结构
